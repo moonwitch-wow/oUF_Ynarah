@@ -2,7 +2,7 @@
 -- Configuration
 ---------------------------------------------------------------------
 local media = "Interface\\AddOns\\oUF_Ynarah\\media\\"
-local statusbar = media.."dX"
+local statusbar = media.."glaze"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11

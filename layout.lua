@@ -2,7 +2,7 @@
 -- Configuration
 ---------------------------------------------------------------------
 local media = "Interface\\AddOns\\oUF_Ynarah\\media\\"
-local statusbar = media.."dX"
+local statusbar = media.."glaze"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
@@ -18,20 +18,6 @@ local _, playerClass = UnitClass("player")
 ---------------------------------------------------------------------
 -- Stored strings and tables
 ---------------------------------------------------------------------
---[[	class = setmetatable({
-		["DEATHKNIGHT"] = {130/255, 32/255, 49/255},
-		["DRUID"] = {181/255, 86/255, 0},
-		["HUNTER"] = {106/255, 140/255, 60/255},
-		["MAGE"] = {33/255, 142/255, 184/255},
-		["PALADIN"] = {175/255, 39/255, 101/255},
-		["PRIEST"] = {223/255, 223/255, 223/255},
-		["ROGUE"] = {207/255, 193/255, 24/255},
-		["SHAMAN"] = {19/255, 166/255, 166/255},
-		["WARLOCK"] = {118/255, 101/255, 167/255},
-		["WARRIOR"] = {146/255, 103/255, 56/255}
-	}, {__index = oUF.colors.class}),
-	]]
-	
 local colors = setmetatable({
 	power = setmetatable({
 		MANA = {0, 144/255, 1}
@@ -64,8 +50,7 @@ end
 ---------------------------------------------------------------------
 -- Custom tags
 ---------------------------------------------------------------------
-oUF.Tags["[AFK]"] = function(unit) return UnitIsAFK(unit) and "|cffff0000A|r" end
-oUF.Tags["[DND]"] = function(unit) return UnitIsDND(unit) and "|cffff00ffD|r" end
+oUF.Tags["[AFKDND]"] = function(unit) return UnitIsAFK(unit) and "|cffff0000A|r" or UnitIsDND(unit) and "|cffff00ffD|r" end
 
 oUF.Tags["[colorpp]"] = function(unit) -- from p3lim"s excellently coded layout
 	local num, str = UnitPowerType(unit)
@@ -78,9 +63,19 @@ oUF.Tags["[shortname]"] = function(u)
 	return (string.len(name) > 10) and string.gsub(name, "%s?(.)%S+%s", "%1. ") or name
 end
 
-oUF.TagEvents["[AFK]"] = "PLAYER_FLAGS_CHANGED"
-oUF.TagEvents["[DND]"] = "PLAYER_FLAGS_CHANGED"
-oUF.TagEvents["[Rest]"] = "PLAYER_UPDATE_RESTING"
+oUF.Tags["[smarthp]"] = function(u)
+	local min, max = UnitHealth(u), UnitHealthMax(u)
+	local r, g, b = oUF.ColorGradient(min/max, 1,0,0, 1,1,0 , 0,1,0)
+	return UnitIsDeadOrGhost(u) and oUF.Tags["[dead]"](u) or (min~=max) and format("|cff%02x%02x%02x%s|cffffffff (%.0f|r%%)", r*255, g*255, b*255, letter(min), min/max*100) or letter(max)
+end
+
+oUF.Tags["[druidpower]"] = function(unit)
+	local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
+	return unit == "player" and UnitPowerType(unit) ~= 0 and min ~= max and ("|cff0090ff%d%%|r"):format(min / max * 100)
+end
+
+oUF.TagEvents["[druidpower]"] = "UNIT_MANA UPDATE_SHAPESHIFT_FORM"
+oUF.TagEvents["[AFKDND]"] = "PLAYER_FLAGS_CHANGED"
 oUF.TagEvents["[shortname]"] = "PLAYER_FLAGS_CHANGED"
 
 ---------------------------------------------------------------------
@@ -194,14 +189,14 @@ local func_of_doom = function(self, unit, settings)
 	if unit == "player" then
 		self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 		self.Power.value:SetTextColor(1, 1, 1)
-		self:Tag(self.Power.value, "[colorpp][curpp]|r ")
+		self:Tag(self.Power.value, "[colorpp][curpp] [( )druidpower]|r ")
 		
 		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 		self:Tag(self.Health.value, "[curhp]")
 	elseif unit == "target" then
 		self.Info = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 		self.Info:SetTextColor(1, 1, 1)
-		self:Tag(self.Info, "[colorpp][curpp]|r [(- )cpoints( CP)] | [curhp] ([perhp]%)")
+		self:Tag(self.Info, "[colorpp][curpp]|r [(- )cpoints( CP)] | [smarthp]")
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 		self:Tag(self.Name,"L[difficulty][smartlevel] [race] [raidcolor][shortname] [dead]")
@@ -289,6 +284,21 @@ local func_of_doom = function(self, unit, settings)
 		self.Castbar.Text:SetTextColor(1, 1, 1)
 		self.Castbar.Text:SetJustifyH"LEFT"
 		self.Castbar.Text:SetShadowOffset(1, -1)
+
+		self.Castbar.Icon = self.Castbar:CreateTexture(nil, "BACKGROUND")
+		self.Castbar.Icon:SetHeight(35)
+		self.Castbar.Icon:SetWidth(35)
+		self.Castbar.Icon:SetTexCoord(.07, .93, .07, .93)
+		
+		self.Castbar.Icon.overlay = self.Castbar:CreateTexture(nil, "OVERLAY")
+		self.Castbar.Icon.overlay:SetAllPoints(self.Castbar.Icon)
+		self.Castbar.Icon.overlay:SetTexture(border)
+		
+		if(unit == "player") then
+			self.Castbar.Icon:SetPoint("TOPLEFT", self.Castbar, "TOPRIGHT", 12, 0)
+		elseif (unit == "target") then
+			self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT", -12, 0)
+		end
 	end
 
 	if unit == "player" then
@@ -300,6 +310,13 @@ local func_of_doom = function(self, unit, settings)
 			self.Swing:SetHeight(2)
 			self.Swing:SetWidth(plWidth)
 		end
+
+		self.Spark = self.Power:CreateTexture(nil, "OVERLAY")
+		self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+		self.Spark:SetVertexColor(1, 1, 1, 1)
+		self.Spark:SetBlendMode("ADD")
+		self.Spark:SetHeight(self.Power:GetHeight()*4.5)
+		self.Spark:SetWidth(4)
 	end
 
 -----------------------------------------------------------------------
@@ -365,15 +382,6 @@ local func_of_doom = function(self, unit, settings)
 		self.Debuffs["growth-y"] = "DOWN"
 	end
 
-	self.PVP = SetFontString(self.Health, font, 13, "CENTER", self.Health, "TOP", 0, 0)
-	self.PVP:SetTextColor(1, 0, 0)
-	self:Tag(self.PVP, "[pvp]")
-
-	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetHeight(14)
-	self.RaidIcon:SetWidth(14)
-	self.RaidIcon:SetPoint("CENTER", self, "CENTER")
---[[
 	if(IsAddOnLoaded"oUF_Reputation" and unit == "player" and UnitLevel("player") == MAX_PLAYER_LEVEL) then
 		self.Reputation = CreateFrame("StatusBar", nil, self)
 		self.Reputation:SetHeight(5)
@@ -393,10 +401,10 @@ local func_of_doom = function(self, unit, settings)
 		self.Reputation.Text = self.Reputation:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		self.Reputation.Text:SetPoint("CENTER", self.Reputation, "CENTER")
 		
-		self.Reputation:HookScript('OnEnter', function(self) self.Reputation:SetAlpha(1) end)
-		self.Reputation:HookScript('OnLeave', function(self) self.Reputation:SetAlpha(0) end)
+		self.Reputation:HookScript("OnEnter", function(self) self.Reputation:SetAlpha(1) end)
+		self.Reputation:HookScript("OnLeave", function(self) self.Reputation:SetAlpha(0) end)
 	end
---]]
+
 	if(IsAddOnLoaded("oUF_Experience") and (unit == "pet" or unit == "player") and UnitLevel("player") < MAX_PLAYER_LEVEL) then
 		self.Experience = CreateFrame("StatusBar", nil, self)
 		self.Experience:SetStatusBarTexture(statusbar)
@@ -411,7 +419,7 @@ local func_of_doom = function(self, unit, settings)
 			}
 		self.Experience:SetBackdropColor(0, 0, 0, .3)
 
-		self.Experience.Rested = CreateFrame('StatusBar', nil, self)
+		self.Experience.Rested = CreateFrame("StatusBar", nil, self)
 		self.Experience.Rested:SetAllPoints(self.Experience)
 		self.Experience.Rested:SetStatusBarTexture(statusbar)
 		self.Experience.Rested:SetStatusBarColor(0, 0.4, 1, 0.6)
@@ -424,10 +432,10 @@ local func_of_doom = function(self, unit, settings)
 
 		self.Experience.Text = self.Experience:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		self.Experience.Text:SetPoint("CENTER", self.Experience, "CENTER")
-		self.Experience:SetScript('OnEnter', function(self) self:SetAlpha(1) end)
-		self.Experience:SetScript('OnLeave', function(self) self:SetAlpha(0) end)
-		self.Experience.Rested:SetScript('OnEnter', function(self) self:SetAlpha(1) end)
-		self.Experience.Rested:SetScript('OnLeave', function(self) self:SetAlpha(0) end)
+		self.Experience:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
+		self.Experience:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
+		self.Experience.Rested:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
+		self.Experience.Rested:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
 		
 		self.Experience.Tooltip = true
 	end
@@ -471,9 +479,13 @@ local func_of_doom = function(self, unit, settings)
 	self.PostCreateAuraIcon = auraIcon
 
 	if(not unit) then 
+		self.SpellRange = true
 		self.Range = true
-		self.inRangeAlpha = 1
-		self.outsideRangeAlpha = .6
+		self.inRangeAlpha = 1.0
+		self.outsideRangeAlpha = 0.4
+		self.Power.Smooth = true
+		self.Health.Smooth = true
+		self.MoveableFrames = true
 	end
 
 	-- Attributing width and height to shit
@@ -482,12 +494,9 @@ local func_of_doom = function(self, unit, settings)
 		self:SetAttribute("initial-width", plWidth)
 		self.Power:SetHeight(ppHeight)
 
-		self.Resting = self.Health:CreateTexture(nil, 'OVERLAY')
-		self.Resting:SetHeight(14)
-		self.Resting:SetWidth(14)
-		self.Resting:SetPoint("CENTER", self.Health, -16, 0)
-		self.Resting:SetTexture(media.."rest.tga")
-		self.Resting:SetVertexColor(1, .6, .13)
+		self.Resting = SetFontString(self.Health, font, fontSize, "CENTER", self.Health, "CENTER", 0, 0)
+		self.Resting:SetText("[R]")
+		self.Resting:SetTextColor(1, .6, .13)
 
 		self.Spark = self.Power:CreateTexture(nil, "OVERLAY")
 		self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
@@ -510,19 +519,26 @@ local func_of_doom = function(self, unit, settings)
 		self.Power:Hide()
 	end
 
-	self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
-	self.Leader:SetHeight(14)
-	self.Leader:SetWidth(14)
-	self.Leader:SetPoint("CENTER", self.Health, "TOP", 0, 0)
-	self.Leader:SetTexture(media.."leader.tga")
-	self.Leader:SetVertexColor(188/255, 152/255, 126/255)
+	self.PVP = SetFontString(self.Health, font, 13, "CENTER", self.Health, "TOP", 0, 0)
+	self.PVP:SetTextColor(1, 0, 0)
+	self:Tag(self.PVP, "[pvp]")
 
-	self.MasterLooter = self.Health:CreateTexture(nil, 'OVERLAY')
-	self.MasterLooter:SetHeight(14)
-	self.MasterLooter:SetWidth(14)
-	self.MasterLooter:SetPoint("CENTER", self.Leader, 16, -16)
-	self.MasterLooter:SetTexture(media.."looter.tga")
-	self.MasterLooter:SetVertexColor(188/255, 152/255, 126/255)
+	self.Leader = SetFontString(self.Health, font, 13, "CENTER", self.Health, "TOPLEFT", 0, 0)
+	self.Leader:SetTextColor(1, 1, 1)
+	self:Tag(self.Leader, "[leader]")
+
+	self.MasterLooter = SetFontString(self.Health, font, 13, "LEFT", self.Health, "RIGHT", 0, 0)
+	self.MasterLooter:SetTextColor(1, 1, 1)
+	self.Tag(self.MasterLooter, "[masterlooter]")
+
+	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
+	self.RaidIcon:SetHeight(14)
+	self.RaidIcon:SetWidth(14)
+	self.RaidIcon:SetPoint("CENTER", self, "CENTER")
+
+	self.AFKDND = SetFontString(self.Health, font, 13, "CENTER", self.Health, "CENTER", 0, 0)
+	self.AFKDND:SetTextColor(1, 0, 0)
+	self:Tag(self.AFKDND, "[AFKDND]")
 end
 
 -- Setup -- :Spawn(unit, frame_name, isPet) --isPet is only used on headers.
