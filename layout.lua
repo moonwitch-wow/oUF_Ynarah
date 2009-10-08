@@ -2,11 +2,11 @@
 -- Configuration
 ---------------------------------------------------------------------
 local media = "Interface\\AddOns\\oUF_Ynarah\\media\\"
-local statusbar = media.."glaze"
+local statusbar = media.."dP"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
-local border = media.."border"
+local border = media.."gloss.tga"
 
 local hpHeight = 20 -- height of healthbar of player/target/tot/focus/pet and height of castbar
 local ppHeight = 8 -- height of powerbar of player/target/pet
@@ -64,9 +64,7 @@ oUF.Tags["[shortname]"] = function(u)
 end
 
 oUF.Tags["[smarthp]"] = function(u)
-	local min, max = UnitHealth(u), UnitHealthMax(u)
-	local r, g, b = oUF.ColorGradient(min/max, 1,0,0, 1,1,0 , 0,1,0)
-	return UnitIsDeadOrGhost(u) and oUF.Tags["[dead]"](u) or (min~=max) and format("|cff%02x%02x%02x%s|cffffffff (%.0f|r%%)", r*255, g*255, b*255, letter(min), min/max*100) or letter(max)
+	return UnitIsDeadOrGhost(u) and oUF.Tags["[dead]"](u) or (UnitHealth(u)~=UnitHealthMax(u)) and format("%s (%.0f%%)", letter(UnitHealth(u)), (UnitHealth(u)/UnitHealthMax(u)*100) or letter(UnitHealthMax(u)))
 end
 
 oUF.Tags["[druidpower]"] = function(unit)
@@ -196,7 +194,7 @@ local func_of_doom = function(self, unit, settings)
 	elseif unit == "target" then
 		self.Info = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 		self.Info:SetTextColor(1, 1, 1)
-		self:Tag(self.Info, "[colorpp][curpp]|r [(- )cpoints( CP)] | [smarthp]")
+		self:Tag(self.Info, "[colorpp][curpp]|r [(- )cpoints( CP)] | [perhp]%")
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 		self:Tag(self.Name,"L[difficulty][smartlevel] [race] [raidcolor][shortname] [dead]")
@@ -205,7 +203,7 @@ local func_of_doom = function(self, unit, settings)
 		self:Tag(self.Name, "[raidcolor][shortname] [dead]")
 		
 		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
-		self:Tag(self.Health.value, "[curpp]|[perhp]%")
+		self:Tag(self.Health.value, "[curpp]|[perhp]|r%")
 	elseif unit == "pet" then
 		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "LEFT", -5, 0)
 		self:Tag(self.Name, "[raidcolor][shortname] [dead]")
@@ -401,8 +399,8 @@ local func_of_doom = function(self, unit, settings)
 		self.Reputation.Text = self.Reputation:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		self.Reputation.Text:SetPoint("CENTER", self.Reputation, "CENTER")
 		
-		self.Reputation:HookScript("OnEnter", function(self) self.Reputation:SetAlpha(1) end)
-		self.Reputation:HookScript("OnLeave", function(self) self.Reputation:SetAlpha(0) end)
+		--self.Reputation:SetScript("OnEnter", function(self) self.Reputation:SetAlpha(1) end)
+		--self.Reputation:SetScript("OnLeave", function(self) self.Reputation:SetAlpha(0) end)
 	end
 
 	if(IsAddOnLoaded("oUF_Experience") and (unit == "pet" or unit == "player") and UnitLevel("player") < MAX_PLAYER_LEVEL) then

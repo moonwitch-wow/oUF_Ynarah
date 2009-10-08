@@ -2,7 +2,7 @@
 -- Configuration
 ---------------------------------------------------------------------
 local media = "Interface\\AddOns\\oUF_Ynarah\\media\\"
-local statusbar = media.."glaze"
+local statusbar = media.."dP"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
@@ -151,7 +151,7 @@ local func_of_party = function(self, unit, settings)
 	self.Power.bg:SetAlpha(.4)
 
 	self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "RIGHT", 2, 0)
-	self:Tag(self.Name, "[raidcolor][shortname()][offline( )][AFK( )]|cff00ffff[(- )assistname( )][assisticon]")
+	self:Tag(self.Name, "[raidcolor][shortname( )] [offline( )] [AFK( )]|cff00ffff[( - )assistname( )][assisticon]")
 	self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 	self:Tag(self.Health.value, "[curhp] ([perhp]%)")
 	self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
