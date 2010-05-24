@@ -135,6 +135,7 @@ local func_of_party = function(self, unit, settings)
 	self.Health:SetHeight(ptyHeight)
 	self.Health:SetStatusBarColor(100/255, 111/255, 101/255)
 	self.Health.frequentUpdates = true
+	self.Health.Smooth = true
 	self.Health.bg = self.Health:CreateTexture(nil, "BORDER", self)
 	self.Health.bg:SetAllPoints(self.Health)
 	self.Health.bg:SetAlpha(.4)
@@ -145,6 +146,7 @@ local func_of_party = function(self, unit, settings)
 	self.Power:SetStatusBarTexture(statusbar)
 	self.Power:SetHeight(ptyMPH)
 	self.Power.frequentUpdates = true
+	self.Power.Smooth = true
 	self.Power.colorClass = true
 	self.Power.bg = self.Power:CreateTexture(nil, "BORDER", self)
 	self.Power.bg:SetAllPoints(self.Power)
@@ -156,6 +158,46 @@ local func_of_party = function(self, unit, settings)
 	self:Tag(self.Health.value, "[curhp] ([perhp]%)")
 	self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 	self.Tag(self.Power.value, "[colorpp]")
+
+	self.Castbar = CreateFrame("StatusBar")
+	self.Castbar:SetBackdrop{
+		bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
+		insets = {left = -2, right = -2, top = -2, bottom = -2},
+	}
+	self.Castbar:SetBackdropColor(0, 0, 0, .3)
+
+	self.Castbar:SetWidth(ptyWidth)
+	self.Castbar:SetHeight(ptyMPH)
+	self.Castbar:SetParent(self.Health)
+	self.Castbar:SetPoint("TOP", self.Power, "BOTTOM", 0, -4)
+	self.Castbar:SetStatusBarTexture(statusbar)
+	self.Castbar:SetStatusBarColor(45/255, 21/255, 53/255)
+
+	self.Castbar:SetMinMaxValues(1, 100)
+	self.Castbar:SetValue(1)
+	self.Castbar:Hide()
+
+	self.Castbar.bg = self.Castbar:CreateTexture(nil, "BORDER")
+	self.Castbar.bg:SetAllPoints(self.Castbar)
+	self.Castbar.bg:SetAlpha(0.4)
+
+	self.Castbar.Text = self.Castbar:CreateFontString(nil, "OVERLAY")
+	self.Castbar.Text:SetPoint("LEFT", self.Castbar, 2, 0)
+	self.Castbar.Text:SetWidth(ptyWidth)
+	self.Castbar.Text:SetFont(font, fontSize)
+	self.Castbar.Text:SetTextColor(1, 1, 1)
+	self.Castbar.Text:SetJustifyH"LEFT"
+	self.Castbar.Text:SetShadowOffset(1, -1)
+
+	self.Castbar.Icon = self.Castbar:CreateTexture(nil, "BACKGROUND")
+	self.Castbar.Icon:SetHeight(ptyHeight)
+	self.Castbar.Icon:SetWidth(ptyHeight)
+	self.Castbar.Icon:SetTexCoord(.07, .93, .07, .93)
+	self.Castbar.Icon:SetPoint("RIGHT", self.Health, "LEFT", -5, -2)
+		
+	self.Castbar.Icon.overlay = self.Castbar:CreateTexture(nil, "OVERLAY")
+	self.Castbar.Icon.overlay:SetAllPoints(self.Castbar.Icon)
+	self.Castbar.Icon.overlay:SetTexture(border)
 
 	self.PVP = SetFontString(self.Health, font, 13, "RIGHT", self.Health, "LEFT", 0, 0)
 	self.PVP:SetTextColor(1, 0, 0)
@@ -177,6 +219,16 @@ local func_of_party = function(self, unit, settings)
 	self.DebuffHighlightAlpha = .5
 
 	self.PostUpdateHealth = updateHealthBG
+	
+	if(not unit) then 
+		self.SpellRange = true
+		self.Range = true
+		self.inRangeAlpha = 1.0
+		self.outsideRangeAlpha = 0.4
+		self.Power.Smooth = true
+		self.Health.Smooth = true
+		self.MoveableFrames = true
+	end
 
 	-- Attributing width and height to shit
 	self:SetAttribute("initial-height", ptyHeight+ptyMPH)
@@ -200,14 +252,19 @@ end
 
 oUF:RegisterStyle("Ynarah_party", func_of_party)
 oUF:SetActiveStyle("Ynarah_party")
-
+--[[
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetManyAttributes("showParty", true, "yOffset", 40, "point", "BOTTOM")
 party:SetPoint("LEFT", oUF.units.target, "RIGHT", 150, -150)
 party:Show()
-
+]]
 local tank = oUF:Spawn('header', 'oUF_MainTank')
 tank:SetManyAttributes('showRaid', true, 'groupFilter', 'MAINTANK', 'yOffset', -15)
 tank:SetPoint('TOP', UIParent, 0, -30)
 tank:Show()
-
+--[[
+local assist = oUF:Spawn('header', 'oUF_MainAssist')
+assist:SetManyAttributes('showRaid', true, 'groupFilter', 'MAINASSIST', 'yOffset', -15)
+assist:SetPoint('TOP', oUF_MainTank, 0, -30)
+assist:Show()
+]]
