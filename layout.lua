@@ -1,38 +1,27 @@
+--[[
+
+  Kelly Crabbé grants anyone the right to use this work for any purpose,
+  without any conditions, unless such conditions are required by law.
+
+--]]
+
 ---------------------------------------------------------------------
 -- Configuration
 ---------------------------------------------------------------------
 local media = "Interface\\AddOns\\oUF_Ynarah\\media\\"
-local statusbar = "Interface\\TargetingFrame\\UI-StatusBar"
+local texture = "Interface\\TargetingFrame\\UI-StatusBar"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
 local border = media.."gloss.tga"
+local backdrop = {
+	bgFile = texture, insets = {top = -1, bottom = -1, left = -1, right = -1}
+}
 
 local hpHeight = 20 -- height of healthbar of player/target/tot/focus/pet and height of castbar
 local ppHeight = 8 -- height of powerbar of player/target/pet
 local plWidth = 325 -- width of player/target and width of castbar
 local focWidth = 185 -- width of tot/focus
-
-local _, playerClass = UnitClass("player")
-
----------------------------------------------------------------------
--- Stored strings and tables
----------------------------------------------------------------------
-local colors = setmetatable({
-	power = setmetatable({
-		MANA = {0, 144/255, 1}
-	}, {__index = oUF.colors.power}),
-	reaction = setmetatable({
-		[2] = {1, 0, 0},
-		[4] = {1, 1, 0},
-		[5] = {0, 1, 0}
-	}, {__index = oUF.colors.reaction}),
-	runes = setmetatable({
-		[1] = {0.8, 0, 0},
-		[3] = {0, 0.4, 0.7},
-		[4] = {0.8, 0.8, 0.8}
-	}, {__index = oUF.colors.runes})
-}, {__index = oUF.colors})
 
 ---------------------------------------------------------------------
 -- Converts 1000000 into 1M
@@ -61,46 +50,45 @@ end
 ---------------------------------------------------------------------
 -- Custom tags
 ---------------------------------------------------------------------
-oUF.Tags["[AFKDND]"] = function(unit)
+oUF.TagEvents["[yna:AFKDND]"] = "PLAYER_FLAGS_CHANGED"
+oUF.Tags["[yna:AFKDND]"] = function(unit)
 	return UnitIsAFK(unit) and "|cffff0000A|r" or UnitIsDND(unit) and "|cffff00ffD|r" 
 end
 
 -- Because we like COLOR
-oUF.Tags["[colorpp]"] = function(unit)
+oUF.TagEvents["[yna:colorpp]"] = "UNIT_MANA"
+oUF.Tags["[yna:colorpp]"] = function(unit)
 	local _, str = UnitPowerType(unit)
 	local coloredmana = colors.power[str]
 	return coloredmana and string.format("|cff%02x%02x%02x", coloredmana[1] * 255, coloredmana[2] * 255, coloredmana[3] * 255)
 end
 
 -- The Shortened Tags :P
-oUF.Tags["[shortpp]"] = function(unit)
+oUF.TagEvents["[yna:shortpp]"] = "UNIT_MANA"
+oUF.Tags["[yna:shortpp]"] = function(unit)
 	return letter(UnitPower(unit))
 end
 
-oUF.Tags["[shortname]"] = function(u)
+oUF.TagEvents["[yna:shortname]"] = "PLAYER_FLAGS_CHANGED"
+oUF.Tags["[yna:shortname]"] = function(u)
 	local name = UnitName(u)
 	return (string.len(name) > 10) and string.gsub(name, "%s?(.)%S+%s", "%1. ") or name
 end
 
-oUF.Tags["[smarthp]"] = function(u)
+oUF.Tags["[yna:smarthp]"] = function(u)
 	return UnitIsDeadOrGhost(u) and oUF.Tags["[dead]"](u) or (UnitHealth(u)~=UnitHealthMax(u)) and format("%s (%.0f%%)", letter(UnitHealth(u)), (UnitHealth(u)/UnitHealthMax(u)*100) or letter(UnitHealthMax(u)))
 end
 
-oUF.Tags["[druidpower]"] = function(unit)
+oUF.TagEvents["[yna:druidpower]"] = "UNIT_MANA UPDATE_SHAPESHIFT_FORM"
+oUF.Tags["[yna:druidpower]"] = function(unit)
 	local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
 	return unit == "player" and UnitPowerType(unit) ~= 0 and min ~= max and ("|cff0090ff%d%%|r"):format(min / max * 100)
 end
 
-oUF.TagEvents["[shortpp]"] = "UNIT_MANA"
-oUF.TagEvents["[colorpp]"] = "UNIT_MANA"
-oUF.TagEvents["[druidpower]"] = "UNIT_MANA UPDATE_SHAPESHIFT_FORM"
-oUF.TagEvents["[AFKDND]"] = "PLAYER_FLAGS_CHANGED"
-oUF.TagEvents["[shortname]"] = "PLAYER_FLAGS_CHANGED"
-
 ---------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
-local auraIcon = function(self, button, icons, index, debuff)
+local PostCreateAura = function(element, button)
 	icons.showType = true
 	button.count:ClearAllPoints()
 	button.count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 2)
@@ -108,6 +96,19 @@ local auraIcon = function(self, button, icons, index, debuff)
 	button.overlay:SetTexCoord(0, 1, 0, 1)
 	button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 	button.icon:SetTexCoord(.07, .93, .07, .93)
+end
+
+local PostUpdateDebuff = function(element, unit, button, index)
+	if(UnitIsFriend('player', unit) or button.isPlayer) then
+		local _, _, _, _, type = UnitAura(unit, index, button.filter)
+		local color = DebuffTypeColor[type] or DebuffTypeColor.none
+
+		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
+		button.icon:SetDesaturated(false)
+	else
+		button:SetBackdropColor(0, 0, 0)
+		button.icon:SetDesaturated(true)
+	end
 end
 
 ---------------------------------------------------------------------
@@ -123,13 +124,10 @@ local SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoi
 end
 
 ---------------------------------------------------------------------
--- Right click player menu
+-- Right click player menu -- taken from p3lim's excellently coded layout
 ---------------------------------------------------------------------
-local function menu(self)
-	local unit = string.gsub(self.unit, "(.)", string.upper, 1)
-	if(_G[unit.."FrameDropDown"]) then
-		ToggleDropDownMenu(1, nil, _G[unit.."FrameDropDown"], "cursor")
-	end
+local function SpawnMenu(self)
+	ToggleDropDownMenu(1, nil, _G[string.gsub(self.unit, '^.', string.upper)..'FrameDropDown'], 'cursor')
 end
 
 ---------------------------------------------------------------------
@@ -147,37 +145,227 @@ local updateHealthBG = function(self, event, unit, bar, min, max)
 end
 
 ---------------------------------------------------------------------
--- Hellish function (the actual style)
+-- Hellish functions UnitSpecific and Shared... new shit :(
 ---------------------------------------------------------------------
-local func_of_doom = function(self, unit, settings)
-	self.colors = colors
+local UnitSpecific = {
+	player = function(self)	
+		self:SetAttribute("initial-height", hpHeight+ppHeight)
+		self:SetAttribute("initial-width", plWidth)
+		self.Power:SetHeight(ppHeight)
+		
+		self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
+		self.Power.value:SetTextColor(1, 1, 1)
+		self:Tag(self.Power.value, "[yna:colorpp][curpp] [( )yna:druidpower]|r ")
+		
+		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
+		self:Tag(self.Health.value, "[curhp]")
+		
+		if(IsAddOnLoaded("oUF_Swing")) then
+			self.Swing = CreateFrame("StatusBar", nil, self)
+			self.Swing:SetPoint("BOTTOM", self.Health, "TOP", 0, 2)
+			self.Swing:SetStatusBarTexture(statusbar)
+			self.Swing:SetStatusBarColor(1, 0.7, 0)
+			self.Swing:SetHeight(2)
+			self.Swing:SetWidth(plWidth)
+		end
+		
+		self.Resting = SetFontString(self.Health, font, fontSize, "CENTER", self.Health, "CENTER", 0, 2)
+		self.Resting:SetText("[R]")
+		self.Resting:SetTextColor(1, .6, .13)
+
+		self.Spark = self.Power:CreateTexture(nil, "OVERLAY")
+		self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+		self.Spark:SetVertexColor(1, 1, 1, 1)
+		self.Spark:SetBlendMode("ADD")
+		self.Spark:SetHeight(self.Power:GetHeight()*4.5)
+		self.Spark:SetWidth(4)
+		
+		self.Debuffs = CreateFrame("Frame", nil, self)
+		self.Debuffs:SetPoint("RIGHT", self.Health, "LEFT", -10, -4)
+		self.Debuffs:SetHeight(hpHeight+ppHeight+8)
+		self.Debuffs:SetWidth(plWidth)
+		self.Debuffs.size = hpHeight+ppHeight+8
+		self.Debuffs.spacing = 2
+		self.Debuffs.initialAnchor = "TOPRIGHT"
+		self.Debuffs["growth-x"] = "LEFT"
+		self.Debuffs["growth-y"] = "DOWN"
+		
+		-- Runes
+		if(unit == "player" and select(2, UnitClass("player")) == "DEATHKNIGHT") then
+			self.Runes = CreateFrame("Frame", nil, self)
+			self.Runes:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -1)
+			self.Runes:SetHeight(3)
+			self.Runes:SetWidth(plWidth)
+			self.Runes:SetBackdrop{
+				bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
+				insets = {left = -2, right = -2, top = -1, bottom = -1},
+				}
+			self.Runes:SetBackdropColor(0, 0, 0, .3)
+			self.Runes.height = 3
+			self.Runes.anchor = "TOPLEFT"
+			self.Runes.growth = "RIGHT"
+			self.Runes.width = plWidth / 6 - 0.85
+
+			for index = 1, 6 do
+				self.Runes[index] = CreateFrame("StatusBar", nil, self.Runes)
+				self.Runes[index]:SetStatusBarTexture(statusbar)
+
+				self.Runes[index].bg = self.Runes[index]:CreateTexture(nil, "BACKGROUND")
+				self.Runes[index].bg:SetAllPoints(self.Runes[index])
+				self.Runes[index].bg:SetTexture(0.3, 0.3, 0.3)
+			end
+		end
 	
-	self.menu = menu
-	self:SetScript("OnEnter", UnitFrame_OnEnter)
-	self:SetScript("OnLeave", UnitFrame_OnLeave)
-	self:RegisterForClicks"anyup"
-	self:SetAttribute("*type2", "menu")
+		-- Totembar
+		if(IsAddOnLoaded("oUF_TotemBar") and (unit == "player" and select(2, UnitClass("player")) == "SHAMAN")) then
+			self.TotemBar = {}
+			for i = 1, 4 do
+				self.TotemBar[i] = CreateFrame("StatusBar", nil, self)
+				self.TotemBar[i]:SetHeight(7)
+				self.TotemBar[i]:SetWidth(plWidth/4 - 0.85)
+				if (i == 1) then
+					self.TotemBar[i]:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
+				else
+					self.TotemBar[i]:SetPoint("TOPLEFT", self.TotemBar[i-1], "TOPRIGHT", 1, 0)
+				end
+				self.TotemBar[i]:SetStatusBarTexture(statusbar)
+				self.TotemBar[i]:SetBackdrop{
+					bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+					insets = {left = -2, right = -2, top = -2, bottom = -2},
+				}
+				self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
+				self.TotemBar[i]:SetMinMaxValues(0, 1)
+				self.TotemBar[i].destroy = true
+							
+				self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, "BORDER")
+				self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
+				self.TotemBar[i].bg:SetTexture(statusbar)
+				self.TotemBar[i].bg.multiplier = 0.25
+			end
+		end
+	end,
+	
+	target = function(self)
+		self:SetAttribute("initial-height", hpHeight+ppHeight)
+		self:SetAttribute("initial-width", plWidth)
+		self.Power:SetHeight(ppHeight)
+		
+		self.Info = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
+		self.Info:SetTextColor(1, 1, 1)
+		self:Tag(self.Info, "[yna:colorpp][yna:shortpp]|r [(- )cpoints( CP)] | [perhp]%")
+		
+		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
+		self:Tag(self.Name,"L[difficulty][smartlevel] [race] [raidcolor][yna:shortname] [dead]")
+		
+		self.Buffs = CreateFrame("Frame", nil, self)
+		self.Buffs:SetPoint("TOPLEFT", self.Health, "BOTTOMRIGHT", 10, 0)
+		self.Buffs:SetHeight(hpHeight+ppHeight)
+		self.Buffs:SetWidth(plWidth)
+		self.Buffs.num = 18
+		self.Buffs.size = hpHeight+ppHeight
+		self.Buffs.spacing = 2
+		self.Buffs.initialAnchor = "TOPLEFT"
 
-	if unit == "player" or unit == "target" then
-		self:SetBackdrop{
-			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-			insets = {left = -2, right = -2, top = -2, bottom = -5},
-		}
-		self:SetBackdropColor(0, 0, 0, .8)
-	elseif unit == "focus" or unit == "focustarget" then
-		self:SetBackdrop{
-			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-			insets = {left = -2, right = -2, top = -2, bottom = -6},
-		}
-		self:SetBackdropColor(0, 0, 0, .8)
-	else
-		self:SetBackdrop{
-			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-			insets = {left = -2, right = -2, top = -2, bottom = -2},
-		}
-		self:SetBackdropColor(0, 0, 0, .8)
-	end
+		self.Debuffs = CreateFrame("Frame", nil, self)
+		self.Debuffs:SetPoint("BOTTOMLEFT", self.Health, "TOPRIGHT", 10, -3)
+		self.Debuffs:SetHeight(hpHeight+ppHeight)
+		self.Debuffs:SetWidth(plWidth)
+		self.Debuffs.size = hpHeight+ppHeight
+		self.Debuffs.spacing = 2
+		self.Debuffs.onlyShowPlayer = true
+		self.Debuffs.initialAnchor = "TOPLEFT"
+		self.Debuffs["growth-y"] = "DOWN"
+		
+		self.CPoints = self:CreateFontString(nil, "OVERLAY", "SubZoneTextFont")
+		self.CPoints:SetPoint("RIGHT", self, "LEFT", -9, 0)
+		self.CPoints:SetTextColor(1, 1, 1)
+		self.CPoints:SetJustifyH("RIGHT")
+		self.CPoints.unit = PlayerFrame.unit
+	
+	end,
+	
+	targettarget = function(self)
+		self:SetAttribute("initial-height", hpHeight)
+		self:SetAttribute("initial-width", focWidth)
+		self.Power:Hide()
+		self.Health:SetHeight(hpHeight)
+		
+		self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "RIGHT", 5, 0)
+		self:Tag(self.Name, "[raidcolor][yna:shortname] [dead]")
+		
+		self.Health.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
+		self:Tag(self.Health.value, "[yna:colorpp][perpp]%|r | [perhp]%")
 
+		self.Debuffs = CreateFrame("Frame", nil, self)
+		self.Debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", -1, -3)
+		self.Debuffs:SetHeight(hpHeight)
+		self.Debuffs:SetWidth(focWidth)
+		self.Debuffs.num = 2
+		self.Debuffs.size = hpHeight
+		self.Debuffs.spacing = 2
+		self.Debuffs.initialAnchor = "TOPLEFT"
+		self.Debuffs["growth-x"] = "RIGHT"
+		self.Debuffs["growth-y"] = "DOWN"
+	end,
+	
+	pet = function(self)
+		self:SetAttribute("initial-height", hpHeight)
+		self:SetAttribute("initial-width", focWidth)
+		self.Power:Hide()
+		
+		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "LEFT", -5, 0)
+		self:Tag(self.Name, "[raidcolor][yna:shortname] [dead]")
+		
+		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
+		self:Tag(self.Health.value, "[yna:colorpp][perpp]%|r|[perhp]%")
+	end,
+	
+	focus = function(self)
+		self:SetAttribute("initial-height", 15)
+		self:SetAttribute("initial-width", 185)
+		self.Power:Hide()
+		
+		self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
+		self:Tag(self.Name, "[raidcolor][yna:shortname] [dead]")
+		
+		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
+		self:Tag(self.Health.value, "[yna:colorpp][perpp]%|r | [perhp]%")
+		
+		self.Buffs = CreateFrame("Frame", nil, self)
+		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 5)
+		self.Buffs:SetHeight(hpHeight-1)
+		self.Buffs:SetWidth(focWidth)
+		self.Buffs.num = 10
+		self.Buffs.size = hpHeight-1
+		self.Buffs.spacing = 1
+		self.Buffs.initialAnchor = "TOPLEFT"
+	end,
+	
+	focustarget = function(self)
+		self:SetAttribute("initial-height", 15)
+		self:SetAttribute("initial-width", 185)
+		self.Power:Hide()
+		
+		self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
+		self:Tag(self.Name, "[raidcolor][yna:shortname] [dead]")
+		
+		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
+		self:Tag(self.Health.value, "[yna:colorpp][perpp]%|r | [perhp]%")
+	end,
+}
+
+local function Shared(self, unit)
+	self:RegisterForClicks('AnyUp')
+	self:SetScript('OnEnter', UnitFrame_OnEnter)
+	self:SetScript('OnLeave', UnitFrame_OnLeave)
+	
+	self.colors.power.MANA = {0, 144/255, 1}
+	
+	-- backdrop
+	self:SetBackdrop(backdrop)
+	self:SetBackdropColor(0, 0, 0, .8)
+	
+	-- HP FG
 	self.Health = CreateFrame("StatusBar", nil, self)
 	self.Health:SetPoint("TOPRIGHT", self)
 	self.Health:SetPoint("TOPLEFT", self)
@@ -186,10 +374,12 @@ local func_of_doom = function(self, unit, settings)
 	self.Health:SetStatusBarColor(100/255, 111/255, 101/255)
 	self.Health.frequentUpdates = true
 	
+	-- HP BG
 	self.Health.bg = self.Health:CreateTexture(nil, "BORDER", self)
 	self.Health.bg:SetAllPoints(self.Health)
 	self.Health.bg:SetAlpha(.4)
 
+	-- PP FG
 	self.Power = CreateFrame("StatusBar", nil, self)
 	self.Power:SetPoint("TOPRIGHT", self.Health, "BOTTOMRIGHT", 0, -3)
 	self.Power:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -3)
@@ -201,48 +391,13 @@ local func_of_doom = function(self, unit, settings)
 	self.Power.colorTapped = true
 	self.Power.colorReaction = true
 	
+	-- PP BG
 	self.Power.bg = self.Power:CreateTexture(nil, "BORDER", self)
 	self.Power.bg:SetAllPoints(self.Power)
 	self.Power.bg:SetAlpha(.4)
 	
-	if unit == "player" then
-		self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
-		self.Power.value:SetTextColor(1, 1, 1)
-		self:Tag(self.Power.value, "[colorpp][curpp] [( )druidpower]|r ")
-		
-		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
-		self:Tag(self.Health.value, "[curhp]")
-	elseif unit == "target" then
-		self.Info = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
-		self.Info:SetTextColor(1, 1, 1)
-		self:Tag(self.Info, "[colorpp][shortpp]|r [(- )cpoints( CP)] | [perhp]%")
-		
-		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
-		self:Tag(self.Name,"L[difficulty][smartlevel] [race] [raidcolor][shortname] [dead]")
-	elseif unit == "focus" or unit == "focustarget" then
-		self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
-		self:Tag(self.Name, "[raidcolor][shortname] [dead]")
-		
-		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
-		self:Tag(self.Health.value, "[colorpp][perpp]%|r | [perhp]%")
-	elseif unit == "pet" then
-		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "LEFT", -5, 0)
-		self:Tag(self.Name, "[raidcolor][shortname] [dead]")
-		
-		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
-		self:Tag(self.Health.value, "[colorpp][perpp]%|r|[perhp]%")
-	elseif unit == "targettarget" then
-		self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "RIGHT", 5, 0)
-		self:Tag(self.Name, "[raidcolor][shortname] [dead]")
-		
-		self.Health.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
-		self:Tag(self.Health.value, "[colorpp][perpp]%|r | [perhp]%")
-	end
-
------------------------------------------------------------------------
--- Castbar
------------------------------------------------------------------------
-	if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then --castbar
+	-- Castbar
+	if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then
 		self.Castbar = CreateFrame("StatusBar")
 		self.Castbar:SetBackdrop{
 			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
@@ -318,253 +473,8 @@ local func_of_doom = function(self, unit, settings)
 			self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT", -12, 0)
 		end
 	end
-
-	if unit == "player" then
-		if(IsAddOnLoaded("oUF_Swing")) then
-			self.Swing = CreateFrame("StatusBar", nil, self)
-			self.Swing:SetPoint("BOTTOM", self.Health, "TOP", 0, 2)
-			self.Swing:SetStatusBarTexture(statusbar)
-			self.Swing:SetStatusBarColor(1, 0.7, 0)
-			self.Swing:SetHeight(2)
-			self.Swing:SetWidth(plWidth)
-		end
-		
-		self.Spark = self.Power:CreateTexture(nil, "OVERLAY")
-		self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		self.Spark:SetVertexColor(1, 1, 1, 1)
-		self.Spark:SetBlendMode("ADD")
-		self.Spark:SetHeight(self.Power:GetHeight()*4.5)
-		self.Spark:SetWidth(4)
-	end
-
------------------------------------------------------------------------
--- Naming conventions and ze buffage
------------------------------------------------------------------------
-	if unit == "target" then
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("TOPLEFT", self.Health, "BOTTOMRIGHT", 10, 0)
-		self.Buffs:SetHeight(hpHeight+ppHeight)
-		self.Buffs:SetWidth(plWidth)
-		self.Buffs.num = 18
-		self.Buffs.size = hpHeight+ppHeight
-		self.Buffs.spacing = 2
-		self.Buffs.initialAnchor = "TOPLEFT"
-
-		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("BOTTOMLEFT", self.Health, "TOPRIGHT", 10, -3)
-		self.Debuffs:SetHeight(hpHeight+ppHeight)
-		self.Debuffs:SetWidth(plWidth)
-		self.Debuffs.size = hpHeight+ppHeight
-		self.Debuffs.spacing = 2
-		self.Debuffs.onlyShowPlayer = true
-		self.Debuffs.initialAnchor = "TOPLEFT"
-		self.Debuffs["growth-y"] = "DOWN"
-		
-		self.CPoints = self:CreateFontString(nil, "OVERLAY", "SubZoneTextFont")
-		self.CPoints:SetPoint("RIGHT", self, "LEFT", -9, 0)
-		self.CPoints:SetTextColor(1, 1, 1)
-		self.CPoints:SetJustifyH("RIGHT")
-		self.CPoints.unit = PlayerFrame.unit
-	elseif unit == "targettarget" then
-		self.Power:Hide()
-		self.Health:SetHeight(hpHeight)
-
-		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", -1, -3)
-		self.Debuffs:SetHeight(hpHeight)
-		self.Debuffs:SetWidth(focWidth)
-		self.Debuffs.num = 2
-		self.Debuffs.size = hpHeight
-		self.Debuffs.spacing = 2
-		self.Debuffs.initialAnchor = "TOPLEFT"
-		self.Debuffs["growth-x"] = "RIGHT"
-		self.Debuffs["growth-y"] = "DOWN"
-	elseif unit == "focus" then
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 5)
-		self.Buffs:SetHeight(hpHeight-1)
-		self.Buffs:SetWidth(focWidth)
-		self.Buffs.num = 10
-		self.Buffs.size = hpHeight-1
-		self.Buffs.spacing = 1
-		self.Buffs.initialAnchor = "TOPLEFT"
-	elseif unit == "player" then
-		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("RIGHT", self.Health, "LEFT", -10, -4)
-		self.Debuffs:SetHeight(hpHeight+ppHeight+8)
-		self.Debuffs:SetWidth(plWidth)
-		self.Debuffs.size = hpHeight+ppHeight+8
-		self.Debuffs.spacing = 2
-		self.Debuffs.initialAnchor = "TOPRIGHT"
-		self.Debuffs["growth-x"] = "LEFT"
-		self.Debuffs["growth-y"] = "DOWN"
-	end
-
-	-- Rep on mouseover when the char is max level :)
-	if(IsAddOnLoaded"oUF_Reputation" and unit == "player" and UnitLevel("player") == MAX_PLAYER_LEVEL) then
-		self.Reputation = CreateFrame("StatusBar", nil, self)
-		self.Reputation:SetHeight(5)
-		self.Reputation:SetStatusBarTexture(statusbar)
-		self.Reputation:SetStatusBarColor(unpack(colors.health))
-		self.Reputation:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
-		self.Reputation:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT", 0, -1)
-		self.Reputation:SetBackdrop{
-			bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
-			insets = {left = -2, right = -2, top = -1, bottom = -1},
-			}
-		self.Reputation:SetBackdropColor(0, 0, 0, .3)
-		self.Reputation.Tooltip = true
-
-		self.Reputation.Text = self.Reputation:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		self.Reputation.Text:SetPoint("CENTER", self.Reputation, "CENTER")
-	end
-
-	-- Experience on mouseover
-	if(IsAddOnLoaded("oUF_Experience") and (unit == "pet" or unit == "player") and UnitLevel("player") < MAX_PLAYER_LEVEL) then
-		self.Experience = CreateFrame("StatusBar", nil, self)
-		self.Experience:SetStatusBarTexture(statusbar)
-		self.Experience:SetHeight(5)
-		self.Experience:SetStatusBarColor(unpack(colors.health))
-		self.Experience:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
-		self.Experience:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT", 0, -1)
-		self.Experience:SetAlpha(0)
-		self.Experience:SetBackdrop{
-			bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
-			insets = {left = -2, right = -2, top = -1, bottom = -1},
-			}
-		self.Experience:SetBackdropColor(0, 0, 0, .3)
-
-		self.Experience.Rested = CreateFrame("StatusBar", nil, self.Experience)
-		self.Experience.Rested:SetAllPoints(self.Experience)
-		self.Experience.Rested:SetStatusBarTexture(statusbar)
-		self.Experience.Rested:SetStatusBarColor(0, 0.4, 1, 0.6)
-		self.Experience.Rested:SetBackdrop{
-			bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
-			insets = {left = -2, right = -2, top = -1, bottom = -1},
-			}
-		self.Experience.Rested:SetBackdropColor(0, 0, 0, .3)
-		self.Experience.Rested:SetAlpha(0)
-
-		self.Experience.Text = self.Experience:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		self.Experience.Text:SetPoint("CENTER", self.Experience, "CENTER")
-		self.Experience:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
-		self.Experience:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
-		self.Experience.Rested:SetScript("OnEnter", function(self) self:SetAlpha(1) end)
-		self.Experience.Rested:SetScript("OnLeave", function(self) self:SetAlpha(0) end)
-		
-		self.Experience.Tooltip = true
-	end
-
-	-- CombatFeedback (And heals)
-	if(IsAddOnLoaded("oUF_CombatFeedback")) then
-		self.CombatFeedbackText = SetFontString(self.Health, font, fontSize+1, "CENTER", self.Health, "CENTER", 0, 0)
-		--self.CombatFeedbackText.ignoreHeal = true -- ignore heals 
-		self.CombatFeedbackText:SetShadowOffset(1, -1)
-		self.CombatFeedbackText:SetShadowColor(0, 0, 0)
-	end
-
-	-- Runes
-	if(unit == "player" and select(2, UnitClass("player")) == "DEATHKNIGHT") then
-		self.Runes = CreateFrame("Frame", nil, self)
-		self.Runes:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -1)
-		self.Runes:SetHeight(3)
-		self.Runes:SetWidth(plWidth)
-		self.Runes:SetBackdrop{
-			bgFile = "Interface\\ChatFrame\\ChatFrameBackground", tile = true, tileSize = 16,
-			insets = {left = -2, right = -2, top = -1, bottom = -1},
-			}
-		self.Runes:SetBackdropColor(0, 0, 0, .3)
-		self.Runes.height = 3
-		self.Runes.anchor = "TOPLEFT"
-		self.Runes.growth = "RIGHT"
-		self.Runes.width = plWidth / 6 - 0.85
-
-		for index = 1, 6 do
-			self.Runes[index] = CreateFrame("StatusBar", nil, self.Runes)
-			self.Runes[index]:SetStatusBarTexture(statusbar)
-
-			self.Runes[index].bg = self.Runes[index]:CreateTexture(nil, "BACKGROUND")
-			self.Runes[index].bg:SetAllPoints(self.Runes[index])
-			self.Runes[index].bg:SetTexture(0.3, 0.3, 0.3)
-		end
-	end
 	
-	-- Totembar
-	if(IsAddOnLoaded("oUF_TotemBar") and (unit == "player" and select(2, UnitClass("player")) == "SHAMAN")) then
-		self.TotemBar = {}
-		for i = 1, 4 do
-			self.TotemBar[i] = CreateFrame("StatusBar", nil, self)
-			self.TotemBar[i]:SetHeight(7)
-			self.TotemBar[i]:SetWidth(plWidth/4 - 0.85)
-			if (i == 1) then
-				self.TotemBar[i]:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
-			else
-				self.TotemBar[i]:SetPoint("TOPLEFT", self.TotemBar[i-1], "TOPRIGHT", 1, 0)
-			end
-			self.TotemBar[i]:SetStatusBarTexture(statusbar)
-			self.TotemBar[i]:SetBackdrop{
-				bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-				insets = {left = -2, right = -2, top = -2, bottom = -2},
-			}
-			self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
-			self.TotemBar[i]:SetMinMaxValues(0, 1)
-			self.TotemBar[i].destroy = true
-						
-			self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, "BORDER")
-			self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
-			self.TotemBar[i].bg:SetTexture(statusbar)
-			self.TotemBar[i].bg.multiplier = 0.25
-		end
-	end
-	
-	self.DebuffHighlightBackdrop = true
-	self.DebuffHighlightFilter = true
-	self.DebuffHighlightAlpha = .5
-
-	self.PostUpdateHealth = updateHealthBG
-	self.PostCreateAuraIcon = auraIcon
-
-	if(not unit) then 
-		self.SpellRange = true
-		self.Range = true
-		self.inRangeAlpha = 1.0
-		self.outsideRangeAlpha = 0.4
-		self.MoveableFrames = true
-		self.Health.BarFade = true
-		self.Power.BarFade = true
-	end
-
-	-- Attributing width and height to shit
-	if(unit == "player") then
-		self:SetAttribute("initial-height", hpHeight+ppHeight)
-		self:SetAttribute("initial-width", plWidth)
-		self.Power:SetHeight(ppHeight)
-
-		self.Resting = SetFontString(self.Health, font, fontSize, "CENTER", self.Health, "CENTER", 0, 2)
-		self.Resting:SetText("[R]")
-		self.Resting:SetTextColor(1, .6, .13)
-
-		self.Spark = self.Power:CreateTexture(nil, "OVERLAY")
-		self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		self.Spark:SetVertexColor(1, 1, 1, 1)
-		self.Spark:SetBlendMode("ADD")
-		self.Spark:SetHeight(self.Power:GetHeight()*4.5)
-		self.Spark:SetWidth(4)
-
-	elseif unit == "pet" or unit == "targettarget" then
-		self:SetAttribute("initial-height", hpHeight)
-		self:SetAttribute("initial-width", focWidth)
-		self.Power:Hide()
-	elseif unit == "target" then
-		self:SetAttribute("initial-height", hpHeight+ppHeight)
-		self:SetAttribute("initial-width", plWidth)
-		self.Power:SetHeight(ppHeight)
-	elseif unit == "focus" or unit == "focustarget" then
-		self:SetAttribute("initial-height", 15)
-		self:SetAttribute("initial-width", 185)
-		self.Power:Hide()
-	end
-
+	-- Tags	
 	self.PVP = SetFontString(self.Health, font, 13, "CENTER", self.Health, "TOP", 0, 0)
 	self.PVP:SetTextColor(1, 0, 0)
 	self:Tag(self.PVP, "[pvp]")
@@ -582,18 +492,51 @@ local func_of_doom = function(self, unit, settings)
 	self.RaidIcon:SetWidth(14)
 	self.RaidIcon:SetPoint("CENTER", self, "CENTER")
 
+	--[[
 	self.AFKDND = SetFontString(self.Health, font, 13, "CENTER", self.Health, "CENTER", 0, 0)
 	self.AFKDND:SetTextColor(1, 0, 0)
-	self:Tag(self.AFKDND, "[AFKDND]")
+	self:Tag(self.AFKDND, "[yna:AFKDND]")
+	--]]
+	
+	-- CombatFeedback (And heals)
+	if(IsAddOnLoaded("oUF_CombatFeedback")) then
+		self.CombatFeedbackText = SetFontString(self.Health, font, fontSize+1, "CENTER", self.Health, "CENTER", 0, 0)
+		--self.CombatFeedbackText.ignoreHeal = true -- ignore heals 
+		self.CombatFeedbackText:SetShadowOffset(1, -1)
+		self.CombatFeedbackText:SetShadowColor(0, 0, 0)
+	end
+	
+	self.DebuffHighlightBackdrop = true
+	self.DebuffHighlightFilter = true
+	self.DebuffHighlightAlpha = .5
+	
+	self.PostUpdateHealth = updateHealthBG
+	self.PostCreateAuraIcon = PostCreateAura
+	
+	if(not unit) then 
+		self.SpellRange = true
+		self.Range = true
+		self.inRangeAlpha = 1.0
+		self.outsideRangeAlpha = 0.4
+		self.MoveableFrames = true
+		self.Health.BarFade = true
+		self.Power.BarFade = true
+	end
+
+	if(UnitSpecific[unit]) then
+		return UnitSpecific[unit](self)
+	end
 end
 
--- Setup -- :Spawn(unit, frame_name, isPet) --isPet is only used on headers.
-oUF:RegisterStyle("Ynarah", func_of_doom)
-oUF:SetActiveStyle("Ynarah")
+oUF:RegisterStyle("Ynarah", Shared)
 
-oUF:Spawn("player"):SetPoint("TOPRIGHT", UIParent, "CENTER", -50, -200)
-oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, -7)
-oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 50, -200)
-oUF:Spawn("focus"):SetPoint("BOTTOMLEFT", oUF.units.target, "TOPLEFT", 0, 35)
-oUF:Spawn("focustarget"):SetPoint("LEFT", oUF.units.focus, "RIGHT", 10, 0)
-oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, -7)
+oUF:Factory(function(self)
+	oUF:SetActiveStyle("Ynarah")
+	
+	oUF:Spawn("player"):SetPoint("TOPRIGHT", UIParent, "CENTER", -50, -200)
+	oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, -7)
+	oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 50, -200)
+	oUF:Spawn("focus"):SetPoint("BOTTOMLEFT", oUF.units.target, "TOPLEFT", 0, 35)
+	oUF:Spawn("focustarget"):SetPoint("LEFT", oUF.units.focus, "RIGHT", 10, 0)
+	oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, -7)
+end)
