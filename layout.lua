@@ -14,9 +14,6 @@ local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
 local border = media.."gloss.tga"
-local backdrop = {
-	bgFile = texture, insets = {top = -1, bottom = -1, left = -1, right = -1}
-}
 
 local hpHeight = 20 -- height of healthbar of player/target/tot/focus/pet and height of castbar
 local ppHeight = 8 -- height of powerbar of player/target/pet
@@ -50,39 +47,41 @@ end
 ---------------------------------------------------------------------
 -- Custom tags
 ---------------------------------------------------------------------
-oUF.TagEvents["[yna:AFKDND]"] = "PLAYER_FLAGS_CHANGED"
-oUF.Tags["[yna:AFKDND]"] = function(unit)
-	return UnitIsAFK(unit) and "|cffff0000A|r" or UnitIsDND(unit) and "|cffff00ffD|r" 
+oUF.TagEvents["yna:AFKDND"] = "PLAYER_FLAGS_CHANGED"
+oUF.Tags["yna:AFKDND"] = function(unit)
+	return UnitIsAFK(unit) and "|cffff0000A|r" or UnitIsDND(unit) and "|cffff00ffD|r" or Unit
 end
 
 -- Because we like COLOR
-oUF.TagEvents["[yna:colorpp]"] = "UNIT_MANA"
-oUF.Tags["[yna:colorpp]"] = function(unit)
+oUF.TagEvents["yna:colorpp"] = "UNIT_MANA"
+oUF.Tags["yna:colorpp"] = function(unit)
 	local _, str = UnitPowerType(unit)
-	local coloredmana = colors.power[str]
+	local coloredmana = _COLORS.power[str]
 	return coloredmana and string.format("|cff%02x%02x%02x", coloredmana[1] * 255, coloredmana[2] * 255, coloredmana[3] * 255)
 end
 
 -- The Shortened Tags :P
-oUF.TagEvents["[yna:shortpp]"] = "UNIT_MANA"
-oUF.Tags["[yna:shortpp]"] = function(unit)
+--oUF.TagEvents["[yna:shortpp]"] = "UNIT_MANA"
+oUF.Tags["yna:shortpp"] = function(unit)
 	return letter(UnitPower(unit))
 end
 
-oUF.TagEvents["[yna:shortname]"] = "PLAYER_FLAGS_CHANGED"
-oUF.Tags["[yna:shortname]"] = function(u)
-	local name = UnitName(u)
+oUF.TagEvents["[yna:shortname]"] = "UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION"
+oUF.Tags["yna:shortname"] = function(unit)
+	local name = UnitName(unit)
 	return (string.len(name) > 10) and string.gsub(name, "%s?(.)%S+%s", "%1. ") or name
 end
 
-oUF.Tags["[yna:smarthp]"] = function(u)
-	return UnitIsDeadOrGhost(u) and oUF.Tags["[dead]"](u) or (UnitHealth(u)~=UnitHealthMax(u)) and format("%s (%.0f%%)", letter(UnitHealth(u)), (UnitHealth(u)/UnitHealthMax(u)*100) or letter(UnitHealthMax(u)))
+oUF.Tags["yna:smarthp"] = function(unit)
+	return UnitIsDeadOrGhost(unit) and oUF.Tags["[dead]"](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format("%s (%.0f%%)", letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
 end
 
-oUF.TagEvents["[yna:druidpower]"] = "UNIT_MANA UPDATE_SHAPESHIFT_FORM"
-oUF.Tags["[yna:druidpower]"] = function(unit)
+--oUF.TagEvents["[yna:druidpower]"] = "UNIT_MANA UPDATE_SHAPESHIFT_FORM"
+oUF.Tags["yna:druidpower"] = function(unit)
 	local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
-	return unit == "player" and UnitPowerType(unit) ~= 0 and min ~= max and ("|cff0090ff%d%%|r"):format(min / max * 100)
+	if(UnitPowerType(unit) ~= 0 and min ~= max) then
+		return ('|cff0090ff%d%%|r'):format(min / max * 100)
+	end
 end
 
 ---------------------------------------------------------------------
@@ -155,7 +154,8 @@ local UnitSpecific = {
 		
 		self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 		self.Power.value:SetTextColor(1, 1, 1)
-		self:Tag(self.Power.value, "[yna:colorpp][curpp] [( )yna:druidpower]|r ")
+		self:Tag(self.Power.value, "[yna:colorpp][curpp< ] [yna:druidpower]|r ")
+		self.Power.value.colorPower = true
 		
 		self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 		self:Tag(self.Health.value, "[curhp]")
@@ -163,7 +163,7 @@ local UnitSpecific = {
 		if(IsAddOnLoaded("oUF_Swing")) then
 			self.Swing = CreateFrame("StatusBar", nil, self)
 			self.Swing:SetPoint("BOTTOM", self.Health, "TOP", 0, 2)
-			self.Swing:SetStatusBarTexture(statusbar)
+			self.Swing:SetStatusBarTexture(texture)
 			self.Swing:SetStatusBarColor(1, 0.7, 0)
 			self.Swing:SetHeight(2)
 			self.Swing:SetWidth(plWidth)
@@ -208,7 +208,7 @@ local UnitSpecific = {
 
 			for index = 1, 6 do
 				self.Runes[index] = CreateFrame("StatusBar", nil, self.Runes)
-				self.Runes[index]:SetStatusBarTexture(statusbar)
+				self.Runes[index]:SetStatusBarTexture(texture)
 
 				self.Runes[index].bg = self.Runes[index]:CreateTexture(nil, "BACKGROUND")
 				self.Runes[index].bg:SetAllPoints(self.Runes[index])
@@ -228,7 +228,7 @@ local UnitSpecific = {
 				else
 					self.TotemBar[i]:SetPoint("TOPLEFT", self.TotemBar[i-1], "TOPRIGHT", 1, 0)
 				end
-				self.TotemBar[i]:SetStatusBarTexture(statusbar)
+				self.TotemBar[i]:SetStatusBarTexture(texture)
 				self.TotemBar[i]:SetBackdrop{
 					bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 					insets = {left = -2, right = -2, top = -2, bottom = -2},
@@ -239,7 +239,7 @@ local UnitSpecific = {
 							
 				self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, "BORDER")
 				self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
-				self.TotemBar[i].bg:SetTexture(statusbar)
+				self.TotemBar[i].bg:SetTexture(texture)
 				self.TotemBar[i].bg.multiplier = 0.25
 			end
 		end
@@ -252,7 +252,7 @@ local UnitSpecific = {
 		
 		self.Info = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
 		self.Info:SetTextColor(1, 1, 1)
-		self:Tag(self.Info, "[yna:colorpp][yna:shortpp]|r [(- )cpoints( CP)] | [perhp]%")
+		self:Tag(self.Info, "[yna:colorpp][yna:shortpp]|r | [perhp]%")
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 		self:Tag(self.Name,"L[difficulty][smartlevel] [race] [raidcolor][yna:shortname] [dead]")
@@ -275,12 +275,14 @@ local UnitSpecific = {
 		self.Debuffs.onlyShowPlayer = true
 		self.Debuffs.initialAnchor = "TOPLEFT"
 		self.Debuffs["growth-y"] = "DOWN"
-		
-		self.CPoints = self:CreateFontString(nil, "OVERLAY", "SubZoneTextFont")
+		--[[
+		self.cpoints = self:CreateFontString(nil, "OVERLAY", "SubZoneTextFont")
 		self.CPoints:SetPoint("RIGHT", self, "LEFT", -9, 0)
 		self.CPoints:SetTextColor(1, 1, 1)
 		self.CPoints:SetJustifyH("RIGHT")
 		self.CPoints.unit = PlayerFrame.unit
+		self:Tag(self.CPoints, '|cffffffff[cpoints]|r')
+		--]]
 	
 	end,
 	
@@ -359,17 +361,32 @@ local function Shared(self, unit)
 	self:SetScript('OnEnter', UnitFrame_OnEnter)
 	self:SetScript('OnLeave', UnitFrame_OnLeave)
 	
-	self.colors.power.MANA = {0, 144/255, 1}
-	
 	-- backdrop
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, .8)
+	if unit == "player" or unit == "target" then
+		self:SetBackdrop{
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			insets = {left = -2, right = -2, top = -2, bottom = -5},
+		}
+		self:SetBackdropColor(0, 0, 0, .8)
+	elseif unit == "focus" or unit == "focustarget" then
+		self:SetBackdrop{
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			insets = {left = -2, right = -2, top = -2, bottom = -6},
+		}
+		self:SetBackdropColor(0, 0, 0, .8)
+	else
+		self:SetBackdrop{
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			insets = {left = -2, right = -2, top = -2, bottom = -2},
+		}
+		self:SetBackdropColor(0, 0, 0, .8)
+	end
 	
 	-- HP FG
 	self.Health = CreateFrame("StatusBar", nil, self)
 	self.Health:SetPoint("TOPRIGHT", self)
 	self.Health:SetPoint("TOPLEFT", self)
-	self.Health:SetStatusBarTexture(statusbar)
+	self.Health:SetStatusBarTexture(texture)
 	self.Health:SetHeight(hpHeight)
 	self.Health:SetStatusBarColor(100/255, 111/255, 101/255)
 	self.Health.frequentUpdates = true
@@ -383,7 +400,7 @@ local function Shared(self, unit)
 	self.Power = CreateFrame("StatusBar", nil, self)
 	self.Power:SetPoint("TOPRIGHT", self.Health, "BOTTOMRIGHT", 0, -3)
 	self.Power:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -3)
-	self.Power:SetStatusBarTexture(statusbar)
+	self.Power:SetStatusBarTexture(texture)
 	self.Power:SetHeight(ppHeight)
 	self.Power.frequentUpdates = true
 
@@ -427,7 +444,7 @@ local function Shared(self, unit)
 			self.Castbar:SetPoint("TOP", oUF.units.pet, "BOTTOM", 0, -4)
 		end
 		
-		self.Castbar:SetStatusBarTexture(statusbar)
+		self.Castbar:SetStatusBarTexture(texture)
 		self.Castbar:SetStatusBarColor(65/255, 45/255, 140/255)
 
 		self.Castbar:SetMinMaxValues(1, 100)
@@ -439,7 +456,7 @@ local function Shared(self, unit)
 		self.Castbar.bg:SetAlpha(0.4)
 
 		self.Castbar.SafeZone = self.Castbar:CreateTexture(nil,"OVERLAY")
-		self.Castbar.SafeZone:SetTexture(statusbar)
+		self.Castbar.SafeZone:SetTexture(texture)
 		self.Castbar.SafeZone:SetVertexColor(140/255, 45/255, 65/255,1)
 		self.Castbar.SafeZone:SetHeight(self.Castbar:GetHeight())
 		self.Castbar.SafeZone:SetBlendMode("DISABLE")
@@ -492,11 +509,9 @@ local function Shared(self, unit)
 	self.RaidIcon:SetWidth(14)
 	self.RaidIcon:SetPoint("CENTER", self, "CENTER")
 
-	--[[
 	self.AFKDND = SetFontString(self.Health, font, 13, "CENTER", self.Health, "CENTER", 0, 0)
 	self.AFKDND:SetTextColor(1, 0, 0)
 	self:Tag(self.AFKDND, "[yna:AFKDND]")
-	--]]
 	
 	-- CombatFeedback (And heals)
 	if(IsAddOnLoaded("oUF_CombatFeedback")) then
@@ -527,6 +542,8 @@ local function Shared(self, unit)
 		return UnitSpecific[unit](self)
 	end
 end
+
+oUF.colors.power.MANA = {0, 144/255, 1}
 
 oUF:RegisterStyle("Ynarah", Shared)
 
