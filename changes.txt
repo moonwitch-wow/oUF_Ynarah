@@ -1,0 +1,29 @@
+-- single units can be done within the style function:
+local style = function(self, unit. isSingle)
+-- 8<8<8<8<8<8<8<8<8<8<8<
+    if(isSingle) then
+        self:SetSize(width, height)
+    end
+-- >8>8>8>8>8>8>8>8>8>8>8
+end
+
+-- header units are slightly more annoying:
+local party = self:SpawnHeader(
+    nil, nil, 'party', 'showParty', true,
+    'oUF-initialConfigFunction', [[
+        -- unit can be nil here, and usually it will be: {raid,party}{,pet,target}
+        local unit = ...
+        -- Do note that this is an string, and you can't actually use locals like this:
+        self:SetWidth(width)
+        self:SetHeight(height)
+    ]]
+)
+
+-- If you need local variables within oUF-initialConfigFunction, you can do:
+    'oUF-initialConfigFunction', ([[
+        -- unit can be nil here, and usually it will be: {raid,party}{,pet,target}
+        local unit = ...
+        -- Do note that this is an string, and you can't actually use locals like this:
+        self:SetWidth(%d)
+        self:SetHeight(%d)
+    ]]):format(width, height)

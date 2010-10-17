@@ -1,10 +1,10 @@
-﻿## Interface: 30000
+﻿## Interface: 40000
 ## Title: oUF_Ynarah
 ## Author: Moonwitch
 ## Notes: oUF layout based on Benea's PitBull frames.
 ## X-credits: Benea for the permission to copy the pitbull layout
 ## RequiredDeps: oUF
-## OptionalDeps: oUF_BarFader, oUF_CombatFeedback, oUF_DebuffHighlight, oUF_Experience, oUF_Reputation, oUF_Swing, oUF_TotemBar
+## OptionalDeps: oUF_CombatFeedback, oUF_DebuffHighlight, oUF_Experience, oUF_Reputation, oUF_Swing, oUF_TotemBar
 
 layout.lua
 #layout_MT.lua
