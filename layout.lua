@@ -265,18 +265,27 @@ local UnitSpecific = {
 		
 		-- Eclipsebar
 		if select(2, UnitClass("player")) == "DRUID" then
-			self.EclipseBar = CreateFrame("StatusBar", nil, self)
-			self.EclipseBar:SetHeight(7)
-			--self.EclipseBar_OnLoad(EclipseBarFrame)
-			self.EclipseBar:ClearAllPoints()
+			self.EclipseBar = CreateFrame("Frame", nil, self)
+			self.EclipseBar:SetSize(plWidth,7)
 			self.EclipseBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
 			self.EclipseBar:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT", 0, -1)
-			self.EclipseBar:SetFrameStrata("HIGH")
 			self.EclipseBar:SetBackdrop{
 					bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 					insets = {left = -2, right = -2, top = -2, bottom = -2},
 				}
 			self.EclipseBar:SetBackdropColor(0, 0, 0, .3)
+			
+			self.EclipseBar.LunarBar = CreateFrame("StatusBar", nil, self.EclipseBar)
+			self.EclipseBar.LunarBar:SetPoint("LEFT", self.EclipseBar, "LEFT", 1, 1)
+			self.EclipseBar.LunarBar:SetSize(plWidth, 5)
+			self.EclipseBar.LunarBar:SetStatusBarTexture(texture)
+			self.EclipseBar.LunarBar:SetStatusBarColor(0.34, 0.1, 0.86)
+			
+			self.EclipseBar.SolarBar = CreateFrame("StatusBar", nil, self.EclipseBar)
+			self.EclipseBar.SolarBar:SetPoint("LEFT", self.EclipseBar.LunarBar:GetStatusBarTexture(), "RIGHT", -1, 1)
+			self.EclipseBar.SolarBar:SetSize(plWidth, 5)
+			self.EclipseBar.SolarBar:SetStatusBarTexture(texture)
+			self.EclipseBar.SolarBar:SetStatusBarColor(0.95, 0.73, 0.15)
 		end
 		
 		-- HolyPower
@@ -495,7 +504,8 @@ local function Shared(self, unit)
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
 	self.Health.bg:SetAllPoints(self.Health)
 	self.Health.bg:SetTexture(texture)
-	self.Health.bg.multiplier = .4
+	self.Health.bg:SetVertexColor(153/255, 0, 0)
+	self.Health.bg.multiplier = .2
 
 	-- PP FG
 	self.Power = CreateFrame("StatusBar", nil, self)
@@ -505,7 +515,7 @@ local function Shared(self, unit)
 	self.Power:SetHeight(ppHeight)
 	self.Power.frequentUpdates = true
 	
-	-- HP Backdrop, because I am fed up with the math of it all.
+	-- PP Backdrop, because I am fed up with the math of it all.
 	self.Power:SetBackdrop{
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 		insets = {left = -2, right = -2, top = 0, bottom = -2},
@@ -520,7 +530,7 @@ local function Shared(self, unit)
 	self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
 	self.Power.bg:SetAllPoints(self.Power)
 	self.Power.bg:SetTexture(texture)
-	self.Power.bg.multiplier = .4
+	self.Power.bg.multiplier = .2
 	
 	-- Castbar
 	if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then
