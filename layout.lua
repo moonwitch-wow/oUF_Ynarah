@@ -98,14 +98,14 @@ local PostUpdateDebuff = function(element, unit, button, index)
 		local color = DebuffTypeColor[type] or DebuffTypeColor.none
 
 		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
-		button.icon:SetDesaturated(false)
+		--button.icon:SetDesaturated(false)
 		button.overlay:SetTexture(border)
 		button.overlay:SetTexCoord(0, 1, 0, 1)
 		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 		button.icon:SetTexCoord(.07, .93, .07, .93)
 	else
 		button:SetBackdropColor(0, 0, 0)
-		button.icon:SetDesaturated(true)
+		--button.icon:SetDesaturated(true)
 		button.overlay:SetTexture(border)
 		button.overlay:SetTexCoord(0, 1, 0, 1)
 		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
@@ -266,24 +266,24 @@ local UnitSpecific = {
 		-- Eclipsebar
 		if select(2, UnitClass("player")) == "DRUID" then
 			self.EclipseBar = CreateFrame("Frame", nil, self)
-			self.EclipseBar:SetSize(plWidth,7)
-			self.EclipseBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -1)
-			self.EclipseBar:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT", 0, -1)
+			self.EclipseBar:SetSize(plWidth, 4)
+			self.EclipseBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -2)
+			self.EclipseBar:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT", 0, -2)
 			self.EclipseBar:SetBackdrop{
 					bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-					insets = {left = -2, right = -2, top = -2, bottom = -2},
+					insets = {left = -2, right = -2, top = 0, bottom = -2},
 				}
-			self.EclipseBar:SetBackdropColor(0, 0, 0, .3)
+			self.EclipseBar:SetBackdropColor(0, 0, 0, .8)
 			
 			self.EclipseBar.LunarBar = CreateFrame("StatusBar", nil, self.EclipseBar)
-			self.EclipseBar.LunarBar:SetPoint("LEFT", self.EclipseBar, "LEFT", 1, 1)
-			self.EclipseBar.LunarBar:SetSize(plWidth, 5)
+			self.EclipseBar.LunarBar:SetPoint("LEFT", self.EclipseBar, "LEFT", 0, 0)
+			self.EclipseBar.LunarBar:SetSize(plWidth, 4)
 			self.EclipseBar.LunarBar:SetStatusBarTexture(texture)
-			self.EclipseBar.LunarBar:SetStatusBarColor(0.34, 0.1, 0.86)
+			self.EclipseBar.LunarBar:SetStatusBarColor(0, 144/255, 1)
 			
 			self.EclipseBar.SolarBar = CreateFrame("StatusBar", nil, self.EclipseBar)
-			self.EclipseBar.SolarBar:SetPoint("LEFT", self.EclipseBar.LunarBar:GetStatusBarTexture(), "RIGHT", -1, 1)
-			self.EclipseBar.SolarBar:SetSize(plWidth, 5)
+			self.EclipseBar.SolarBar:SetPoint("LEFT", self.EclipseBar.LunarBar:GetStatusBarTexture(), "RIGHT", 0, 0)
+			self.EclipseBar.SolarBar:SetSize(plWidth, 4)
 			self.EclipseBar.SolarBar:SetStatusBarTexture(texture)
 			self.EclipseBar.SolarBar:SetStatusBarColor(0.95, 0.73, 0.15)
 		end
@@ -504,8 +504,8 @@ local function Shared(self, unit)
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
 	self.Health.bg:SetAllPoints(self.Health)
 	self.Health.bg:SetTexture(texture)
-	self.Health.bg:SetVertexColor(153/255, 0, 0)
-	self.Health.bg.multiplier = .2
+	self.Health.bg:SetVertexColor(139/255, 70/255, 70/255)
+	self.Health.bg.multiplier = .75
 
 	-- PP FG
 	self.Power = CreateFrame("StatusBar", nil, self)
@@ -626,14 +626,14 @@ local function Shared(self, unit)
 	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
 	self.RaidIcon:SetHeight(14)
 	self.RaidIcon:SetWidth(14)
-	self.RaidIcon:SetPoint("CENTER", self, "CENTER")
+	self.RaidIcon:SetPoint("CENTER", self.Health, "TOP")
 	
 	self.LFDRole = self.Health:CreateTexture(nil, "OVERLAY")
 	self.LFDRole:SetHeight(15)
 	self.LFDRole:SetWidth(15)
-	self.LFDRole:SetPoint("BOTTOMLEFT", -1, -4)
+	self.LFDRole:SetPoint("BOTTOMLEFT", -1, 4)
 
-	self.AFKDND = SetFontString(self.Health, font, 13, "CENTER", self.Health, "CENTER", 0, 0)
+	self.AFKDND = SetFontString(self.Health, font, 13, "CENTER", self.Health, "TOPRIGHT", 0, 0)
 	self.AFKDND:SetTextColor(1, 0, 0)
 	self:Tag(self.AFKDND, "[yna:AFKDND]")
 	
