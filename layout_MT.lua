@@ -13,27 +13,6 @@ local ptyHeight = 15
 local ptyMPH = 3
 
 ---------------------------------------------------------------------
--- Stored strings and tables
----------------------------------------------------------------------
-
-	
-local colors = setmetatable({
-	power = setmetatable({
-		MANA = {0, 144/255, 1}
-	}, {__index = oUF.colors.power}),
-	reaction = setmetatable({
-		[2] = {1, 0, 0},
-		[4] = {1, 1, 0},
-		[5] = {0, 1, 0}
-	}, {__index = oUF.colors.reaction}),
-	runes = setmetatable({
-		[1] = {0.8, 0, 0},
-		[3] = {0, 0.4, 0.7},
-		[4] = {0.8, 0.8, 0.8}
-	}, {__index = oUF.colors.runes})
-}, {__index = oUF.colors})
-
----------------------------------------------------------------------
 -- Converts 1000000 into 1M
 ---------------------------------------------------------------------
 local letter = function(value) -- to shorten HP/MP strings at full
@@ -70,18 +49,38 @@ oUF.TagEvents["[shortname]"] = "PLAYER_FLAGS_CHANGED"
 oUF.Tags["[assisticon]"] = function(u) local i = GetRaidTargetIndex(u.."target") return i and ICON_LIST[i]..'22|t' end
 oUF.Tags["[assistname]"] = function(u) return UnitName(u.."target") end
 
-
 ---------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
-local auraIcon = function(self, button, icons, index, debuff)
-	icons.showType = true
+local PostCreateAura = function(element, button)
+	button.showType = true
 	button.count:ClearAllPoints()
 	button.count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 2)
 	button.overlay:SetTexture(border)
 	button.overlay:SetTexCoord(0, 1, 0, 1)
 	button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 	button.icon:SetTexCoord(.07, .93, .07, .93)
+end
+
+local PostUpdateDebuff = function(element, unit, button, index)
+	if(UnitIsFriend("player", unit) or button.isPlayer) then
+		local _, _, _, _, type = UnitAura(unit, index, button.filter)
+		local color = DebuffTypeColor[type] or DebuffTypeColor.none
+
+		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
+		--button.icon:SetDesaturated(false)
+		button.overlay:SetTexture(border)
+		button.overlay:SetTexCoord(0, 1, 0, 1)
+		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
+		button.icon:SetTexCoord(.07, .93, .07, .93)
+	else
+		button:SetBackdropColor(0, 0, 0)
+		--button.icon:SetDesaturated(true)
+		button.overlay:SetTexture(border)
+		button.overlay:SetTexCoord(0, 1, 0, 1)
+		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
+		button.icon:SetTexCoord(.07, .93, .07, .93)
+	end
 end
 
 ---------------------------------------------------------------------
