@@ -20,8 +20,15 @@ local ppHeight = 8 -- height of powerbar of player/target/pet
 local plWidth = 325 -- width of player/target and width of castbar
 local focWidth = 185 -- width of tot/focus
 
--- I got tired of typing this all the damn time k?
-local backdrop = {bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = { left = -1, right = -1, top = -1, bottom = -1}}
+--I got tired of typing this all the damn time k?
+local backdrop = {
+		bgFile = "Interface\\Buttons\\WHITE8x8",
+		edgeFile = "Interface\\Buttons\\WHITE8x8",
+		edgeSize = 1,
+		insets = { left = -1, right = -1, top = -1, bottom = -1}
+		}
+local backdropcolor = {.1,.1,.1,1}
+local backdropbordercolor = {.6,.6,.6,1}
 
 ---------------------------------------------------------------------
 -- Converts 1000000 into 1M
@@ -165,26 +172,40 @@ end
 ---------------------------------------------------------------------
 local UnitSpecific = {
 	player = function(self)	
-		self:SetHeight(hpHeight+ppHeight)
-		self:SetWidth(plWidth)
+		self:SetWidth(plWidth+4)
+		self:SetHeight(hpHeight+ppHeight+6)
 		self.Power:SetHeight(ppHeight)
 		
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
+	
 		self.Power.value = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
 		self.Power.value:SetTextColor(1, 1, 1)
 		self:Tag(self.Power.value, '[yna:colorpp][curpp< ] [yna:druidpower]|r ')
 		
 		self.Health.value = SetFontString(self.Health, font, fontSize+1, 'RIGHT', self.Health, 'RIGHT', -2, 0)
 		self:Tag(self.Health.value, '[curhp]')
-		
+
 		if(IsAddOnLoaded('oUF_Swing')) then
 			self.Swing = CreateFrame('StatusBar', nil, self)
-			self.Swing:SetPoint('BOTTOM', self.Health, 'TOP', 0, 2)
-			self.Swing:SetStatusBarTexture(texture)
-			self.Swing:SetStatusBarColor(1, 0.7, 0)
+			self.Swing:SetBackdrop(backdrop)
+			self.Swing:SetBackdropColor(.1,.1,.1,1)
+			self.Swing:SetBackdropBorderColor(.6,.6,.6,1)
+			self.Swing:SetPoint('BOTTOM', self.Health, 'TOP', 0, 3)
+			--self.Swing:SetStatusBarTexture(texture)
+			--self.Swing.textureBG = texture
+			--self.Swing:SetStatusBarColor(1, 0.7, 0)
+			self.Swing.texture = [=[Interface\TargetingFrame\UI-StatusBar]=]
+			self.Swing.color = {1, 0, 0, 0.8}
+			self.Swing.textureBG = [=[Interface\TargetingFrame\UI-StatusBar]=]
+			self.Swing.colorBG = {0, 0, 0, 0.8}
 			self.Swing:SetHeight(2)
 			self.Swing:SetWidth(plWidth)
+			
+			self.Swing.hideOoc = true
 		end
-		
+
 		self.Resting = SetFontString(self.Health, font, fontSize, 'CENTER', self.Health, 'CENTER', 0, 2)
 		self.Resting:SetText('[R]')
 		self.Resting:SetTextColor(1, .6, .13)
@@ -248,7 +269,7 @@ local UnitSpecific = {
 		end
 	
 		-- Totembar
-		if(IsAddOnLoaded('oUF_TotemBar') and select(2, UnitClass('player')) == 'SHAMAN') then
+		if(IsAddOnLoaded('oUF_boring_TotemBar') and select(2, UnitClass('player')) == 'SHAMAN') then
 			self.TotemBar = {}
 			for i = 1, 4 do
 				self.TotemBar[i] = CreateFrame('StatusBar', nil, self)
@@ -281,11 +302,9 @@ local UnitSpecific = {
 			self.EclipseBar:SetSize(plWidth, 4)
 			self.EclipseBar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -2)
 			self.EclipseBar:SetPoint('TOPRIGHT', self.Power, 'BOTTOMRIGHT', 0, -2)
-			self.EclipseBar:SetBackdrop{
-					bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-					insets = {left = -2, right = -2, top = 0, bottom = -2},
-				}
-			self.EclipseBar:SetBackdropColor(0, 0, 0, .8)
+			self.EclipseBar:SetBackdrop(backdrop)
+			self.EclipseBar:SetBackdropColor(.1,.1,.1,1)
+			self.EclipseBar:SetBackdropBorderColor(.6,.6,.6,1)
 			
 			self.EclipseBar.LunarBar = CreateFrame('StatusBar', nil, self.EclipseBar)
 			self.EclipseBar.LunarBar:SetPoint('LEFT', self.EclipseBar, 'LEFT', 0, 0)
@@ -306,11 +325,9 @@ local UnitSpecific = {
 			self.HolyPower:SetSize(plWidth, 5)
 			self.HolyPower:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -2)
 			self.HolyPower:SetPoint('TOPRIGHT', self.Power, 'BOTTOMRIGHT', 0, -2)
-			self.HolyPower:SetBackdrop{
-					bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-					insets = {left = -2, right = -2, top = 0, bottom = -2},
-				}
-			self.HolyPower:SetBackdropColor(0, 0, 0, .8)
+			self.HolyPower:SetBackdrop(backdrop)
+			self.HolyPower:SetBackdropColor(.1,.1,.1,1)
+			self.HolyPower:SetBackdropBorderColor(.6,.6,.6,1)
 			
 			for i = 1, MAX_HOLY_POWER do
 				self.HolyPower[i] = self.HolyPower:CreateTexture(nil, 'OVERLAY')
@@ -339,21 +356,23 @@ local UnitSpecific = {
 
 		-- SoulShards
 		if select(2, UnitClass('player')) ==  'WARLOCK' then
-			self.SoulShards = CreateFrame('Frame', nil, self)
-			self.SoulShards:SetSize(plWidth, 7)
-			self.SoulShards:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -2)
-			self.SoulShards:SetPoint('TOPRIGHT', self.Power, 'BOTTOMRIGHT', 0, -2)
-
+			self.SoulShards = CreateFrame('Frame', nil, self.Health)
+			self.SoulShards:SetSize(self.Health:GetHeight()*3-4, self.Health:GetHeight()-4)
+			self.SoulShards:SetPoint('CENTER', self.Health, 'CENTER', 0, 0)
+			self.SoulShards:SetBackdrop(backdrop)
+			self.SoulShards:SetBackdropColor(.1,.1,.1,1)
+			self.SoulShards:SetBackdropBorderColor(.6,.6,.6,1)
+			
 			for i = 1, SHARD_BAR_NUM_SHARDS do
 				self.SoulShards[i] = self.SoulShards:CreateTexture(nil, 'OVERLAY')
-				self.SoulShards[i]:SetSize((plWidth-2)/SHARD_BAR_NUM_SHARDS, 5)
+				self.SoulShards[i]:SetSize(self.SoulShards:GetHeight(), self.SoulShards:GetHeight()-4)
 				self.SoulShards[i]:SetTexture(texture)
-				self.SoulShards[i]:SetVertexColor(0, 144/255, 1)
+				self.SoulShards[i]:SetVertexColor(117/255, 82/255, 221/255)
 				
 				if (i == 1) then
-					self.SoulShards[i]:SetPoint('TOPLEFT', self.SoulShards, 'TOPLEFT', 0, -1)
+					self.SoulShards[i]:SetPoint('TOPLEFT', self.SoulShards, 'TOPLEFT', 2, -2)
 				else
-					self.SoulShards[i]:SetPoint('TOPLEFT', self.SoulShards[i-1], 'TOPRIGHT', 1, 0)
+					self.SoulShards[i]:SetPoint('TOPLEFT', self.SoulShards[i-1], 'TOPRIGHT', 2, 0)
 				end
 				
 				-- so we have a bar when it's depleted
@@ -362,18 +381,17 @@ local UnitSpecific = {
 				self.SoulShards[i].bg:SetTexture(texture)
 				self.SoulShards[i].bg.multiplier = .4
 			end
-			self.SoulShards:SetBackdrop{
-				bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-				insets = {left = -2, right = -2, top = 0, bottom = -2},
-			}
-			self.SoulShards:SetBackdropColor(0, 0, 0, .8)
 		end
 	end,
 	
 	target = function(self)
-		self:SetHeight(hpHeight+ppHeight)
-		self:SetWidth(plWidth)
+		self:SetWidth(plWidth+4)
+		self:SetHeight(hpHeight+ppHeight+6)
 		self.Power:SetHeight(ppHeight)
+		
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
 		
 		self.Info = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
 		self.Info:SetTextColor(1, 1, 1)
@@ -414,10 +432,15 @@ local UnitSpecific = {
 	end,
 	
 	targettarget = function(self)
-		self:SetHeight(hpHeight)
-		self:SetWidth(focWidth)
 		self.Power:Hide()
 		self.Health:SetHeight(hpHeight)
+		
+		self:SetWidth(focWidth+4)
+		self:SetHeight(hpHeight+4)
+		
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'RIGHT', 5, 0)
 		self:Tag(self.Name, '[raidcolor][yna:shortname] [dead]')
@@ -439,11 +462,15 @@ local UnitSpecific = {
 	end,
 	
 	pet = function(self)
-		self:SetHeight(hpHeight)
-		self:SetWidth(focWidth)
-		--self.Power:Hide()
+		self.Health:SetHeight(hpHeight)
+		self.Power:SetHeight(2)
+				
+		self:SetWidth(focWidth+4)
+		self:SetHeight(hpHeight+8)
 		
-		self.Power:SetHeight(3)
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, 'RIGHT', self.Health, 'LEFT', -5, 0)
 		self:Tag(self.Name, '[raidcolor][yna:shortname] [dead]')
@@ -453,9 +480,14 @@ local UnitSpecific = {
 	end,
 	
 	focus = function(self)
-		self:SetHeight(15)
-		self:SetWidth(185)
 		self.Power:Hide()
+				
+		self:SetWidth(189)
+		self:SetHeight(24)
+		
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
 		self:Tag(self.Name, '[raidcolor][yna:shortname] [dead]')
@@ -475,9 +507,14 @@ local UnitSpecific = {
 	end,
 	
 	focustarget = function(self)
-		self:SetHeight(15)
-		self:SetWidth(185)
 		self.Power:Hide()
+				
+		self:SetWidth(189)
+		self:SetHeight(24)
+		
+		self:SetBackdrop(backdrop)
+		self:SetBackdropColor(.1,.1,.1,1)
+		self:SetBackdropBorderColor(.6,.6,.6,1)
 		
 		self.Name = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
 		self:Tag(self.Name, '[raidcolor][yna:shortname] [dead]')
@@ -497,19 +534,12 @@ local function Shared(self, unit)
 	
 	-- HP FG
 	self.Health = CreateFrame('StatusBar', nil, self)
-	self.Health:SetPoint('TOPRIGHT', self)
-	self.Health:SetPoint('TOPLEFT', self)
+	self.Health:SetPoint('TOPLEFT', self, 'TOPLEFT', 2, -2)
+	self.Health:SetPoint('TOPRIGHT', self, 'TOPRIGHT', -2, -2)
 	self.Health:SetStatusBarTexture(texture)
 	self.Health:SetHeight(hpHeight)
 	self.Health:SetStatusBarColor(100/255, 111/255, 101/255)
 	self.Health.frequentUpdates = true
-	
-	-- HP Backdrop, because I am fed up with the math of it all.
-	self.Health:SetBackdrop{
-			bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-			insets = {left = -2, right = -2, top = -2, bottom = -2},
-		}
-	self.Health:SetBackdropColor(0, 0, 0, .8)
 	
 	-- HP BG
 	self.Health.bg = self.Health:CreateTexture(nil, 'BACKGROUND')
@@ -526,13 +556,6 @@ local function Shared(self, unit)
 	self.Power:SetHeight(ppHeight)
 	self.Power.frequentUpdates = true
 	
-	-- PP Backdrop, because I am fed up with the math of it all.
-	self.Power:SetBackdrop{
-		bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-		insets = {left = -2, right = -2, top = 0, bottom = -2},
-		}
-	self.Power:SetBackdropColor(0, 0, 0, .8)
-
 	self.Power.colorClass = true
 	self.Power.colorTapped = true
 	self.Power.colorReaction = true
@@ -546,11 +569,17 @@ local function Shared(self, unit)
 	-- Castbar
 	if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
 		self.Castbar = CreateFrame('StatusBar')
-		self.Castbar:SetBackdrop{
-			bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = true, tileSize = 16,
-			insets = {left = -2, right = -2, top = -2, bottom = -2},
-		}
-		self.Castbar:SetBackdropColor(0, 0, 0, .8)
+		
+		self.Castbar2 = CreateFrame('StatusBar', nil, self.Castbar)
+		self.Castbar2:SetPoint('BOTTOMRIGHT', self.Castbar, 'BOTTOMRIGHT', 2, -2)
+		self.Castbar2:SetPoint('TOPLEFT', self.Castbar, 'TOPLEFT', -2, 2)
+		self.Castbar2:SetWidth(plWidth+4)
+		self.Castbar2:SetHeight(ppHeight+4)
+		self.Castbar2:SetFrameLevel(0)
+		
+		self.Castbar2:SetBackdrop(backdrop)
+		self.Castbar2:SetBackdropColor(.1,.1,.1,1)
+		self.Castbar2:SetBackdropBorderColor(.6,.6,.6,1)
 
 		if unit == 'player' then
 			self.Castbar:SetWidth(plWidth)
@@ -566,7 +595,7 @@ local function Shared(self, unit)
 			self.Castbar:SetWidth(focWidth)
 			self.Castbar:SetHeight(ppHeight-1)
 			self.Castbar:SetParent(oUF.units.focus)
-			self.Castbar:SetPoint('TOP', oUF.units.focus, 'BOTTOM', 0, -6)
+			self.Castbar:SetPoint('TOP', oUF.units.focus, 'BOTTOM', 0, -4)
 		else
 			self.Castbar:SetWidth(focWidth)
 			self.Castbar:SetHeight(ppHeight)
@@ -614,12 +643,11 @@ local function Shared(self, unit)
 		self.Castbar.Icon.overlay:SetAllPoints(self.Castbar.Icon)
 		self.Castbar.Icon.overlay:SetTexture(border)
 		
-		local colorcb = oUF.colors.class[select(2, UnitClass('player'))]
 		self.Castbar.Spark = self.Castbar:CreateTexture(nil,'OVERLAY')
 		self.Castbar.Spark:SetBlendMode('ADD')
 		self.Castbar.Spark:SetHeight(self.Castbar:GetHeight()*2)
 		self.Castbar.Spark:SetWidth(10)
-		self.Castbar.Spark:SetVertexColor(colorcb[1], colorcb[2], colorcb[3])
+		self.Castbar.Spark:SetVertexColor(1,1,1)
 		
 		if(unit == 'player') then
 			self.Castbar.Icon:SetPoint('TOPLEFT', self.Castbar, 'TOPRIGHT', 12, 0)
