@@ -1,3 +1,4 @@
+
 ---------------------------------------------------------------------
 -- Configuration
 ---------------------------------------------------------------------
@@ -11,6 +12,9 @@ local border = media.."border"
 local ptyWidth = 135
 local ptyHeight = 15
 local ptyMPH = 3
+
+local bossWidth = 175
+local bossHeight = 20
 
 ---------------------------------------------------------------------
 -- Converts 1000000 into 1M
@@ -37,6 +41,44 @@ oUF.TagEvents['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
 oUF.Tags['yna:shortname'] = function(unit)
 	local name = UnitName(unit)
 	return (string.len(name) > 10) and string.gsub(name, '%s?(.)%S+%s', '%1. ') or name
+end
+
+oUF.Tags['yna:smarthp'] = function(unit)
+	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
+end
+
+---------------------------------------------------------------------
+-- Aura Skinning
+---------------------------------------------------------------------
+local PostCreateAura = function(element, button)
+	button.showType = true
+	button.count:ClearAllPoints()
+	button.count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 2)
+	button.overlay:SetTexture(border)
+	button.overlay:SetTexCoord(0, 1, 0, 1)
+	button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
+	button.icon:SetTexCoord(.07, .93, .07, .93)
+end
+
+local PostUpdateDebuff = function(element, unit, button, index)
+	if(UnitIsFriend("player", unit) or button.isPlayer) then
+		local _, _, _, _, type = UnitAura(unit, index, button.filter)
+		local color = DebuffTypeColor[type] or DebuffTypeColor.none
+
+		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
+		--button.icon:SetDesaturated(false)
+		button.overlay:SetTexture(border)
+		button.overlay:SetTexCoord(0, 1, 0, 1)
+		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
+		button.icon:SetTexCoord(.07, .93, .07, .93)
+	else
+		button:SetBackdropColor(0, 0, 0)
+		--button.icon:SetDesaturated(true)
+		button.overlay:SetTexture(border)
+		button.overlay:SetTexCoord(0, 1, 0, 1)
+		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
+		button.icon:SetTexCoord(.07, .93, .07, .93)
+	end
 end
 
 ---------------------------------------------------------------------
@@ -68,7 +110,7 @@ end
 ---------------------------------------------------------------------
 -- Func of doom
 ---------------------------------------------------------------------
-local func_of_party = function(self, unit, settings)
+local func_of_raid = function(self, unit, settings)
 	self.colors = colors
 	
 	self.menu = menu
@@ -108,7 +150,7 @@ local func_of_party = function(self, unit, settings)
 	self.Power.bg:SetAlpha(.4)
 
 	self.Name = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "RIGHT", 2, 0)
-	self:Tag(self.Name, "[raidcolor][yna:shortname] [offline<)] [yna:AFKDND<]|cff00ffff")
+	self:Tag(self.Name, "[raidcolor][yna:shortname] [offline<)] [yna:AFKDND<]")
 	self.Health.value = SetFontString(self.Health, font, fontSize+1, "RIGHT", self.Health, "RIGHT", -2, 0)
 	self:Tag(self.Health.value, "[curhp] ([perhp]%)")
 	self.Power.value = SetFontString(self.Health, font, fontSize+1, "LEFT", self.Health, "LEFT", 2, 0)
@@ -189,28 +231,4 @@ local func_of_party = function(self, unit, settings)
 	self:SetAttribute("initial-height", ptyHeight+ptyMPH)
 	self:SetAttribute("initial-width", ptyWidth)
 	self.Power:SetHeight(ptyMPH)
-
-	self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
-	self.Leader:SetHeight(14)
-	self.Leader:SetWidth(14)
-	self.Leader:SetPoint("CENTER", self.Health, "TOPLEFT", 16, 0)
-	self.Leader:SetTexture(media.."leader.tga")
-	self.Leader:SetVertexColor(188/255, 152/255, 126/255)
-
-	self.MasterLooter = self.Health:CreateTexture(nil, 'OVERLAY')
-	self.MasterLooter:SetHeight(14)
-	self.MasterLooter:SetWidth(14)
-	self.MasterLooter:SetPoint("CENTER", self.Leader, 16, -16)
-	self.MasterLooter:SetTexture(media.."looter.tga")
-	self.MasterLooter:SetVertexColor(188/255, 152/255, 126/255)
 end
-
-oUF:RegisterStyle("Ynarah_party", func_of_party)
-oUF:SetActiveStyle("Ynarah_party")
---[[
-local party = oUF:Spawn("header", "oUF_Party")
-party:SetManyAttributes("showParty", true, "yOffset", 40, "point", "BOTTOM")
-party:SetPoint("LEFT", oUF.units.target, "RIGHT", 150, -150)
-party:Show()
---]]
-

@@ -1,6 +1,6 @@
 --[[
 
-  Kelly Crabb? grants anyone the right to use this work for any purpose,
+  Kelly Crabbe grants anyone the right to use this work for any purpose,
   without any conditions, unless such conditions are required by law.
 
 --]]
@@ -10,6 +10,7 @@
 ---------------------------------------------------------------------
 local media = 'Interface\\AddOns\\oUF_Ynarah\\media\\'
 local texture = 'Interface\\TargetingFrame\\UI-StatusBar'
+--local texture = media..'dP.tga'
 local font = STANDARD_TEXT_FONT
 local numbers = 'Fonts\\skurri.TTF'
 local fontSize = 11
@@ -52,7 +53,6 @@ local function hex(r, g, b)
 	end
 	return ('|cff%02x%02x%02x'):format(r * 255, g * 255, b * 255)
 end
-
 
 ---------------------------------------------------------------------
 -- Custom tags
@@ -99,6 +99,27 @@ oUF.Tags['yna:druidpower'] = function(unit)
 	end
 end
 
+local Shadow_Orb = GetSpellInfo(77487)
+oUF.Tags['yna:ShadowOrbs'] = function(unit)
+    if(unit == 'player') then
+      local name, _, icon, count = UnitBuff('player', Shadow_Orb)
+	  return name and count
+    end
+end
+oUF.TagEvents['yna:ShadowOrbs'] = 'UNIT_AURA'
+
+local Evangelism = GetSpellInfo(81661) or GetSpellInfo(81660)
+local Dark_Evangelism = GetSpellInfo(87118) or GetSpellInfo(87117)
+oUF.Tags['yna:Evangelism'] = function(unit)
+	if unit == 'player' then
+      local name, _, icon, count = UnitBuff('player', Evangelism)
+	  if name then return count end
+	  name, _, icon, count = UnitBuff('player', Dark_Evangelism)
+	  return name and count
+	end
+end
+oUF.TagEvents['yna:Evangelism'] = 'UNIT_AURA'
+
 ---------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
@@ -118,14 +139,14 @@ local PostUpdateDebuff = function(element, unit, button, index)
 		local color = DebuffTypeColor[type] or DebuffTypeColor.none
 
 		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
-		--button.icon:SetDesaturated(false)
+		button.icon:SetDesaturated(false)
 		button.overlay:SetTexture(border)
 		button.overlay:SetTexCoord(0, 1, 0, 1)
 		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 		button.icon:SetTexCoord(.07, .93, .07, .93)
 	else
-		button:SetBackdropColor(0, 0, 0)
-		--button.icon:SetDesaturated(true)
+		button:SetBackdropColor(0, 0, 0, 1)
+		button.icon:SetDesaturated(true)
 		button.overlay:SetTexture(border)
 		button.overlay:SetTexCoord(0, 1, 0, 1)
 		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
@@ -192,15 +213,14 @@ local UnitSpecific = {
 			self.Swing:SetBackdrop(backdrop)
 			self.Swing:SetBackdropColor(.1,.1,.1,1)
 			self.Swing:SetBackdropBorderColor(.6,.6,.6,1)
-			self.Swing:SetPoint('BOTTOM', self.Health, 'TOP', 0, 3)
+			
+			self.Swing:SetPoint('TOP', self.Health, 'BOTTOM', 0, 0)
 			--self.Swing:SetStatusBarTexture(texture)
 			--self.Swing.textureBG = texture
 			--self.Swing:SetStatusBarColor(1, 0.7, 0)
-			self.Swing.texture = [=[Interface\TargetingFrame\UI-StatusBar]=]
-			self.Swing.color = {1, 0, 0, 0.8}
-			self.Swing.textureBG = [=[Interface\TargetingFrame\UI-StatusBar]=]
-			self.Swing.colorBG = {0, 0, 0, 0.8}
-			self.Swing:SetHeight(2)
+			self.Swing.texture = texture
+			self.Swing.color = {1, 0.7, 0, 0.8}
+			self.Swing:SetHeight(1)
 			self.Swing:SetWidth(plWidth)
 			
 			self.Swing.hideOoc = true
@@ -228,6 +248,11 @@ local UnitSpecific = {
 		self.Debuffs['growth-y'] = 'DOWN'
 		self.Debuffs.PostCreateIcon = PostCreateAura
 		RuneFrame:Hide()
+		
+		if select(2, UnitClass('player')) == 'PRIEST' then
+			self.Priestly = SetFontString(self.Health, font, 25, 'BOTTOMLEFT', self.Health, 'TOPRIGHT', 25, 15)
+			self:Tag(self.Priestly, '|cff68228b[yna:ShadowOrbs]|r|cffeedd82[yna:Evangelism]|r')
+		end
 		
 		-- Runes
 		if select(2, UnitClass('player')) == 'DEATHKNIGHT' then
@@ -268,34 +293,47 @@ local UnitSpecific = {
 			end
 		end
 	
-		-- Totembar
+		--[[ Totembar
 		if(IsAddOnLoaded('oUF_boring_TotemBar') and select(2, UnitClass('player')) == 'SHAMAN') then
-			self.TotemBar = {}
+			self.TotemBar = {
+				AbbreviateNames = true,
+				Destroy = true,
+				UpdateColors = true,
+			}
+			
 			for i = 1, 4 do
-				self.TotemBar[i] = CreateFrame('StatusBar', nil, self)
+				self.TotemBar[i] = CreateFrame('Frame', nil, self)
 				self.TotemBar[i]:SetHeight(7)
 				self.TotemBar[i]:SetWidth(plWidth/4 - 0.85)
+				
 				if (i == 1) then
-					self.TotemBar[i]:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -1)
+					self.TotemBar[i]:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -4)
 				else
 					self.TotemBar[i]:SetPoint('TOPLEFT', self.TotemBar[i-1], 'TOPRIGHT', 1, 0)
 				end
-				self.TotemBar[i]:SetStatusBarTexture(texture)
-				self.TotemBar[i]:SetBackdrop{
-					bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
-					insets = {left = -2, right = -2, top = -2, bottom = -2},
-				}
-				self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
-				self.TotemBar[i]:SetMinMaxValues(0, 1)
-				self.TotemBar[i].destroy = true
-							
-				self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, 'BORDER')
+				
+				self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, 'BACKGROUND')
 				self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
 				self.TotemBar[i].bg:SetTexture(texture)
 				self.TotemBar[i].bg.multiplier = 0.25
+				
+				self.TotemBar[i].StatusBar = CreateFrame('StatusBar', nil)
+				self.TotemBar[i].StatusBar:SetStatusBarTexture(texture)
+				self.TotemBar[i].StatusBar:SetBackdrop{
+					bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
+					insets = {left = -2, right = -2, top = -2, bottom = -2},
+				}
+				self.TotemBar[i].StatusBar:SetHeight(7)
+				self.TotemBar[i].StatusBar:SetWidth(plWidth/4 - 0.85)
+				
+				--self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
+				--self.TotemBar[i]:SetMinMaxValues(0, 1)
+				
+				self.TotemBar[i].Time = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'RIGHT', self.TotemBar[i], 'RIGHT', 0, 2)
+				self.TotemBar[i].Text = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'LEFT', self.TotemBar[i], 'LEFT', 0, 2)
 			end
 		end
-		
+		--]]
 		-- Eclipsebar
 		if select(2, UnitClass('player')) == 'DRUID' then
 			self.EclipseBar = CreateFrame('Frame', nil, self)
@@ -494,7 +532,7 @@ local UnitSpecific = {
 		
 		self.Health.value = SetFontString(self.Health, font, fontSize+1, 'RIGHT', self.Health, 'RIGHT', -2, 0)
 		self:Tag(self.Health.value, '[yna:colorpp][perpp]%|r | [perhp]%')
-		
+		--[[
 		self.Buffs = CreateFrame('Frame', nil, self)
 		self.Buffs:SetPoint('BOTTOMLEFT', self, 'TOPLEFT', 0, 5)
 		self.Buffs:SetHeight(hpHeight-1)
@@ -504,6 +542,7 @@ local UnitSpecific = {
 		self.Buffs.spacing = 1
 		self.Buffs.initialAnchor = 'TOPLEFT'
 		self.Buffs.PostCreateIcon = PostCreateAura
+		--]]
 	end,
 	
 	focustarget = function(self)
@@ -649,6 +688,14 @@ local function Shared(self, unit)
 		self.Castbar.Spark:SetWidth(10)
 		self.Castbar.Spark:SetVertexColor(1,1,1)
 		
+		self.Castbar.CustomDelayText = function(self, duration)
+			self.Time:SetFormattedText('[|cffff0000-%.1f|r] %.1f/%.1f', self.delay, duration, self.max)
+		end
+
+		self.Castbar.CustomTimeText = function(self, duration)
+			self.Time:SetFormattedText('%.1f / %.1f', self.channeling and duration or (self.max - duration), self.max)
+		end
+		
 		if(unit == 'player') then
 			self.Castbar.Icon:SetPoint('TOPLEFT', self.Castbar, 'TOPRIGHT', 12, 0)
 		elseif (unit == 'target') then
@@ -677,7 +724,7 @@ local function Shared(self, unit)
 	self.LFDRole = self.Health:CreateTexture(nil, 'OVERLAY')
 	self.LFDRole:SetHeight(15)
 	self.LFDRole:SetWidth(15)
-	self.LFDRole:SetPoint('BOTTOMLEFT', -1, 4)
+	self.LFDRole:SetPoint('CENTER', -1, 4)
 
 	self.AFKDND = SetFontString(self.Health, font, 13, 'CENTER', self.Health, 'TOPRIGHT', 0, 0)
 	self.AFKDND:SetTextColor(1, 0, 0)
@@ -689,18 +736,32 @@ local function Shared(self, unit)
 	
 	-- HealPrediction
 	local mhpb = CreateFrame('StatusBar',nil,self.Health)
-	mhpb:SetMinMaxValues(0,1)
 	mhpb:SetStatusBarTexture(texture)
 	mhpb:SetStatusBarColor(0.25,1,0,.5)
+	mhpb:SetWidth(self:GetWidth())
 	mhpb:SetPoint('TOPLEFT', self.Health:GetStatusBarTexture(), 'TOPRIGHT')
 	mhpb:SetPoint('BOTTOMLEFT', self.Health:GetStatusBarTexture(), 'BOTTOMRIGHT')
+	mhpb:SetFrameLevel(1)
 	
+	--[[ Alt Power
+	--Alternative Power Bar
+	self.AltPowerBar = CreateFrame("StatusBar", nil, self.Power)
+	self.AltPowerBar:SetStatusBarTexture(texture)
+	self.AltPowerBar:GetStatusBarTexture():SetHorizTile(false)
+	self.AltPowerBar:SetFrameStrata("MEDIUM")
+	self.AltPowerBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT")
+	self.AltPowerBar:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
+
+		
+	self.AltPowerBar.text  = SetFontString(self.Health, font, 13, 'CENTER', self.AltPowerBar, 'TOPRIGHT', 0, 0)	
+	--]]	
 	local ohpb = CreateFrame('StatusBar',nil,self.Health)
-	ohpb:SetMinMaxValues(0,1)
 	ohpb:SetStatusBarTexture(texture)
 	ohpb:SetStatusBarColor(0.25,1,0,.5)
 	ohpb:SetPoint('TOPLEFT', self.Health:GetStatusBarTexture(), 'TOPRIGHT')
 	ohpb:SetPoint('BOTTOMLEFT', self.Health:GetStatusBarTexture(), 'BOTTOMRIGHT')
+	ohpb:SetWidth(self:GetWidth())
+	ohpb:SetFrameLevel(1)
 	self.HealPrediction = {
 		myBar = mhpb,
 		otherBar = ohpb,
@@ -744,8 +805,8 @@ oUF:Factory(function(self)
 	
 	oUF:Spawn('player'):SetPoint('CENTER', -305, -92)
 	oUF:Spawn('target'):SetPoint('CENTER', 305, -92)
-	oUF:Spawn('pet'):SetPoint('TOPRIGHT', oUF.units.player, 'BOTTOMRIGHT', 0, -15)
-	oUF:Spawn('focus'):SetPoint('BOTTOMLEFT', oUF.units.target, 'TOPLEFT', 0, 35)
-	oUF:Spawn('focustarget'):SetPoint('LEFT', oUF.units.focus, 'RIGHT', 10, 0)
 	oUF:Spawn('targettarget'):SetPoint('TOPLEFT', oUF.units.target, 'BOTTOMLEFT', 0, -15)
+	oUF:Spawn('pet'):SetPoint('TOPRIGHT', oUF.units.player, 'BOTTOMRIGHT', 0, -15)
+	oUF:Spawn('focus'):SetPoint('TOPLEFT', oUF.units.targettarget, 'BOTTOMLEFT', 0, -5)
+	oUF:Spawn('focustarget'):SetPoint('LEFT', oUF.units.focus, 'RIGHT', 10, 0)
 end)
