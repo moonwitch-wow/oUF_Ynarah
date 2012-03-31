@@ -1,3 +1,23 @@
-README for oUF_Ynarah
+h2{color:blue}. Hi!
+h3. Statement
+I am _not_ a frequent player anymore, I have a painfully demanding job and well, food happens to be more important. However; the latest few versions of oUF didn't break my layout whatsoever. I am merely *beautifying*.
 
-This oUF layout has been going through constant changes, and I may end up scraping it all together soonish. But at this point, it's just a Work-In-Progress.
+h3. What is it?
+It's my personal prefered layout. That's all there is to it. It's not meant for release to the masses. It will not eat your babies, but it will sure as hell chew on them. 
+
+h3. Features?
+* Player, Target, ToT, Focus, ToF, Pet, Party/raid are somewhat implemented (I use Grid2 :P) and bossbars.
+* CombatFeedback
+* BarFader
+* Swing bar
+* Custom tags for
+** Soulshards
+** Holypower
+** Combopoints
+** Eclipsebar
+** Shadowpower
+** Lightninshield/Maelstrom weapon/earth and watershield
+** druidpower
+** some more that I am not thinking about right now.
+* Castbar for player, target and focus
+* buffs with some filtering
