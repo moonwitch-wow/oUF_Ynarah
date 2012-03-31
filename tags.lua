@@ -27,7 +27,7 @@ oUF.Tags['yna:pp'] = function(unit)
 	else
 		local _, type = UnitPowerType(unit)
 		local colors = _COLORS.power
-		return format('%s%s (%.1f%%)|r | ', Hex(colors[type] or colors['RUNES']), letter(UnitPower(unit)), UnitPower(unit)/UnitPowerMax(unit)*100)
+		return format('%s%s (%.1f%%)|r | ', oUFYna.hex(colors[type] or colors['RUNES']), oUFYna.letter(UnitPower(unit)), UnitPower(unit)/UnitPowerMax(unit)*100)
 	end
 end
 
@@ -38,7 +38,7 @@ oUF.Tags['yna:shortname'] = function(unit)
 end
 
 oUF.Tags['yna:smarthp'] = function(unit)
-	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
+	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', oUFYna.letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or oUFYna.letter(UnitHealthMax(unit)))
 end
 
 oUF.Tags['yna:druidpower'] = function(unit)
