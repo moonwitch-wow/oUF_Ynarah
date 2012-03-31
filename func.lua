@@ -6,7 +6,7 @@ local _, oUFYna = ...
 ---------------------------------------------------------------------
 -- Converts 1000000 into 1M
 ---------------------------------------------------------------------
-function oUFYna.letter(value) -- to shorten HP/MP strings at full
+oUFYna.letter = function(value) -- to shorten HP/MP strings at full
 	if value >= 1e6 then
 		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
 	elseif value >= 1e3 or value <= -1e3 then
@@ -19,7 +19,7 @@ end
 ---------------------------------------------------------------------
 -- Colorize NOW
 ---------------------------------------------------------------------
-function oUFYna.hex(r, g, b)
+oUFYna.hex = function(r, g, b)
 	if(type(r) == 'table') then
 		if(r.r) then r, g, b = r.r, r.g, r.b else r, g, b = unpack(r) end
 	end
@@ -29,7 +29,7 @@ end
 ---------------------------------------------------------------------
 -- Custom fontcreation
 ---------------------------------------------------------------------
-function oUFYna.SetFontString(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
+oUFYna.SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
 	local fs = parent:CreateFontString(nil, 'OVERLAY')
 	fs:SetFont(fontName, fontHeight, outline)
 	fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
@@ -41,6 +41,6 @@ end
 ---------------------------------------------------------------------
 -- Right click player menu -- taken from p3lim's excellently coded layout
 ---------------------------------------------------------------------
-function oUFYna.SpawnMenu(self)
+oUFYna.SpawnMenu = function(self)
 	ToggleDropDownMenu(1, nil, _G[string.gsub(self.unit, '^.', string.upper)..'FrameDropDown'], 'cursor')
 end
