@@ -71,9 +71,9 @@ end
 ---------------------------------------------------------------------
 -- Custom fontcreation
 ---------------------------------------------------------------------
-local SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset)
+local SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
 	local fs = parent:CreateFontString(nil, 'OVERLAY')
-	fs:SetFont(fontName, fontHeight)
+	fs:SetFont(fontName, fontHeight, outline)
 	fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
 	fs:SetShadowColor(0, 0, 0, .7)
 	fs:SetShadowOffset(1, -1)
@@ -363,6 +363,19 @@ local UnitSpecific = {
 				self.SoulShards[i].bg:SetTexture(texture)
 				self.SoulShards[i].bg.multiplier = .4
 			end
+		end
+		
+		-- yay player specs
+		self.specPower = SetFontString(self.Health, font, 30, 'CENTER', self.Health, 'CENTER', 0, 3, 'MONOCHROMEOUTLINE')
+
+		if select(2, UnitClass('player')) == "DRUID" then
+			self:Tag(self.specPower, '[yna:wm1][yna:wm2][yna:wm3]')
+		elseif select(2, UnitClass('player')) == "PRIEST" then
+			self:Tag(self.specPower, '[yna:orbs]')
+		elseif select(2, UnitClass('player')) == "PALADIN" or select(2, UnitClass('player')) == "WARLOCK" then
+			self:Tag(self.specPower, '[yna:sp]')
+		elseif select(2, UnitClass('player')) == "SHAMAN" then
+			self:Tag(self.specPower, '[yna:ws][yna:ls]')
 		end
 	end,
 	

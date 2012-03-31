@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------
+-- Converts 1000000 into 1M
+---------------------------------------------------------------------
+local letter = function(value) -- to shorten HP/MP strings at full
+	if value >= 1e6 then
+		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
+	elseif value >= 1e3 or value <= -1e3 then
+		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
+	else
+		return value
+	end
+end
+
+---------------------------------------------------------------------
 -- Custom tags
 ---------------------------------------------------------------------
 oUF.TagEvents['yna:AFKDND'] = 'PLAYER_FLAGS_CHANGED'
@@ -64,3 +77,139 @@ oUF.Tags['yna:Evangelism'] = function(unit)
 	end
 end
 oUF.TagEvents['yna:Evangelism'] = 'UNIT_AURA'
+
+-- special powers
+oUF.Tags['yna:sp'] = function(unit)
+	local _, class = UnitClass(u)
+	local SP, spcol = 0,{}
+	if class == "PALADIN" then
+		SP = UnitPower("player", SPELL_POWER_HOLY_POWER )
+		spcol = {"8AFF30","FFF130","FF6161"}
+	elseif class == "WARLOCK" then
+		SP = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+		spcol = {"FF6161","FFF130","8AFF30"}
+	end
+	if SP == 1 then
+		return "|cff"..spcol[1].."_|r"
+	elseif SP == 2 then
+		return "|cff"..spcol[2].."_ _|r"
+	elseif SP == 3 then
+		return "|cff"..spcol[3].."_ _ _|r"
+	end
+end
+oUF.TagEvents['yna:sp'] = 'UNIT_POWER'
+
+-- combo points
+oUF.Tags['yna:cp'] = function(unit)
+	local cp = UnitExists("vehicle") and GetComboPoints("vehicle", "target") or GetComboPoints("player", "target")
+	cpcol = {"8AFF30","FFF130","FF6161"}
+	if cp == 1 then		return "|cff"..cpcol[1].."_|r" 
+	elseif cp == 2 then	return "|cff"..cpcol[1].."_ _|r"
+	elseif cp == 3 then	return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_|r" 
+	elseif cp == 4 then	return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_ _|r" 
+	elseif cp == 5 then	return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_ _|r |cff"..cpcol[3].."_|r"
+	end
+end
+oUF.TagEvents['yna:cp'] = 'UNIT_COMBO_POINTS'
+
+-- shadow orbs
+oUF.Tags['yna:orbs'] = function(unit)
+	local name, _, _, count, _, duration = UnitBuff("player",GetSpellInfo(77487))
+	if count == 1 then
+		return "|cffFF6161_|r"
+	elseif count == 2 then
+		return "|cffFFF130_ _|r"
+	elseif count == 3 then
+		return "|cff8AFF30_ _ _|r"
+	end
+end
+oUF.TagEvents['yna:orbs'] = 'UNIT_AURA'
+
+-- water shield
+oUF.Tags['yna:ws'] = function(unit)
+	local name, _, _, count, _, duration = UnitBuff("player",GetSpellInfo(52127)) 
+	if count == 1 then
+		return "|cffFF6161_|r"
+	elseif count == 2 then
+		return "|cff8AFF30_ _|r"
+	elseif count == 3 then
+		return "|cff8AFF30_ _ _|r"
+	end
+end
+oUF.TagEvents['mono:ws'] = 'UNIT_AURA'
+
+-- lightning shield / maelstrom weapon
+oUF.Tags['yna:ls'] = function(unit)
+	local lsn, _, _, lsc = UnitBuff("player",GetSpellInfo(324))
+	local mw, _, _, mwc = UnitBuff("player",GetSpellInfo(53817))
+	if mw and not UnitBuff("player",GetSpellInfo(52127)) then
+		if mwc == 1 then
+			return "|cff8AFF30_|r"
+		elseif mwc == 2 then
+			return "|cff8AFF30_ _|r"
+		elseif mwc == 3 then
+			return "|cff8AFF30_ _|r |cffFFF130_ _|r"
+		elseif mwc == 4 then
+			return "|cff8AFF30_ _|r |cffFFF130_ _|r"
+		elseif mwc == 5 then
+			return "|cffFF6161_ _ _ _ _|r"
+		end
+	else
+		if lsc == 1 then
+			return "|cff434343_|r"
+		elseif lsc == 2 then
+			return "|cff434343_ _|r"
+		elseif lsc == 7 then
+			return "|cffFFF130_|r |cff434343_ _|r"
+		elseif lsc == 8 then
+			return "|cffFF6161_ _|r |cff434343_|r"
+		elseif lsc == 9 then
+			return "|cffFF6161_ _ _|r"
+		elseif lsc then
+			return "|cff434343_ _ _|r"
+		end
+	end
+end
+oUF.TagEvents['yna:ls'] = 'UNIT_AURA'
+
+-- earth shield
+oUF.earthCount = {1,2,3,4,5,6,7,8,9}
+oUF.Tags['raid:earth'] = function(unit) 
+	local c = select(4, UnitAura(u, GetSpellInfo(974))) 
+	if c then return '|cffFFCF7F'..oUF.earthCount[c]..'|r' end end
+oUF.TagEvents['raid:earth'] = 'UNIT_AURA'
+
+-- Prayer of Mending
+oUF.pomCount = {1,2,3,4,5,6}
+oUF.Tags['raid:pom'] = function(unit) local c = select(4, UnitAura(u, GetSpellInfo(33076))) if c then return "|cffFFCF7F"..oUF.pomCount[c].."|r" end end
+oUF.TagEvents['raid:pom'] = "UNIT_AURA"
+
+-- Lifebloom
+oUF.lbCount = { 1, 2, 3 }
+oUF.Tags['raid:lb'] = function(unit) 
+	local name, _,_, c,_,_, expirationTime, fromwho,_ = UnitAura(u, GetSpellInfo(33763))
+	if not (fromwho == "player") then return end
+	local spellTimer = GetTime()-expirationTime
+	if spellTimer > -2 then
+		return "|cffFF0000"..oUF.lbCount[c].."|r"
+	elseif spellTimer > -4 then
+		return "|cffFF9900"..oUF.lbCount[c].."|r"
+	else
+		return "|cffA7FD0A"..oUF.lbCount[c].."|r"
+	end
+end
+oUF.TagEvents['raid:lb'] = "UNIT_AURA"
+
+-- shrooooooooooooms (Wild Mushroom)
+if select(2, UnitClass("player")) == "DRUID" then
+	for i=1,3 do
+		oUF.Tags['yna:wm'..i] = function(unit)
+			_,_,_,dur = GetTotemInfo(i)
+			if dur > 0 then
+				return "|cffFF6161_ |r"
+			end
+		end
+		oUF.TagEvents['yna:wm'..i] = 'PLAYER_TOTEM_UPDATE'
+		oUF.UnitlessTagEvents.PLAYER_TOTEM_UPDATE = true
+	end
+end
