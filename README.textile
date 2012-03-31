@@ -1,11 +1,11 @@
-h1{color:blue}.Hi!
-h1.Statement
+h1{color:blue}. Hi!
+h1. Statement
 I am _not_ a frequent player anymore, I have a painfully demanding job and well, food happens to be more important. However; the latest few versions of oUF didn't break my layout whatsoever. I am merely *beautifying*.
 
-h1.What is it?
+h1. What is it?
 It's my personal prefered layout. That's all there is to it. It's not meant for release to the masses. It will not eat your babies, but it will sure as hell chew on them. 
 
-h1.Features?
+h1. Features?
 * Player, Target, ToT, Focus, ToF, Pet, Party/raid are somewhat implemented (I use Grid2 :P) and bossbars.
 * CombatFeedback
 * BarFader
