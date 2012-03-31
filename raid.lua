@@ -1,3 +1,7 @@
+---------------------------------------------------------------------
+-- Namespacing teh shit out of this
+---------------------------------------------------------------------
+local _, oUFYna = ...
 
 ---------------------------------------------------------------------
 -- Configuration
@@ -16,37 +20,6 @@ local ptyMPH = 3
 
 local bossWidth = 175
 local bossHeight = 20
-
----------------------------------------------------------------------
--- Converts 1000000 into 1M
----------------------------------------------------------------------
-local letter = function(value) -- to shorten HP/MP strings at full
-	if(value >= 1e6) then
-		return gsub(format("%.2fm", value / 1e6), "%.?0+([km])$", "%1")
-	elseif(value >= 1e4) then
-		return gsub(format("%.1fk", value / 1e3), "%.?0+([km])$", "%1")
-	else
-		return value
-	end
-end
-
----------------------------------------------------------------------
--- Custom tags
----------------------------------------------------------------------
-oUF.TagEvents['yna:AFKDND'] = 'PLAYER_FLAGS_CHANGED'
-oUF.Tags['yna:AFKDND'] = function(unit)
-	return UnitIsAFK(unit) and '|cffff0000A|r' or UnitIsDND(unit) and '|cffff00ffD|r' or Unit
-end
-
-oUF.TagEvents['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
-oUF.Tags['yna:shortname'] = function(unit)
-	local name = UnitName(unit)
-	return (string.len(name) > 10) and string.gsub(name, '%s?(.)%S+%s', '%1. ') or name
-end
-
-oUF.Tags['yna:smarthp'] = function(unit)
-	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
-end
 
 ---------------------------------------------------------------------
 -- Aura Skinning
@@ -80,18 +53,6 @@ local PostUpdateDebuff = function(element, unit, button, index)
 		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 		button.icon:SetTexCoord(.07, .93, .07, .93)
 	end
-end
-
----------------------------------------------------------------------
--- Custom fontcreation
----------------------------------------------------------------------
-local SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset)
-	local fs = parent:CreateFontString(nil, "OVERLAY")
-	fs:SetFont(fontName, fontHeight)
-	fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
-	fs:SetShadowColor(0, 0, 0, .7)
-	fs:SetShadowOffset(1, -1)
-	return fs
 end
 
 ---------------------------------------------------------------------

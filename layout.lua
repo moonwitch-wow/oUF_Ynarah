@@ -6,36 +6,14 @@
 --]]
 
 ---------------------------------------------------------------------
--- Configuration
+-- Namespacing teh shit out of this
 ---------------------------------------------------------------------
-local media = 'Interface\\AddOns\\oUF_Ynarah\\media\\'
-local texture = 'Interface\\TargetingFrame\\UI-StatusBar'
---local texture = media..'dP.tga'
-local font = STANDARD_TEXT_FONT
-local numbers = 'Fonts\\skurri.TTF'
-local fontSize = 12
---local border = media..'border.tga'
-local border = media..'gloss.tga'
-
-local hpHeight = 20 -- height of healthbar of player/target/tot/focus/pet and height of castbar
-local ppHeight = 8 -- height of powerbar of player/target/pet
-local plWidth = 325 -- width of player/target and width of castbar
-local focWidth = 185 -- width of tot/focus
-
---I got tired of typing this all the damn time k?
-local backdrop = {
-		bgFile = "Interface\\Buttons\\WHITE8x8",
-		edgeFile = "Interface\\Buttons\\WHITE8x8",
-		edgeSize = 1,
-		insets = { left = -1, right = -1, top = -1, bottom = -1}
-		}
-local backdropcolor = {.1,.1,.1,1}
-local backdropbordercolor = {.6,.6,.6,1}
+local _, oUFYna = ...
 
 ---------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
-local PostCreateAura = function(element, button)
+oUFYna.PostCreateAura = function(element, button)
 	button.showType = true
 	button.count:ClearAllPoints()
 	button.count:SetPoint('BOTTOMRIGHT', button, 'BOTTOMRIGHT', -1, 2)
@@ -46,28 +24,9 @@ local PostCreateAura = function(element, button)
 end
 
 ---------------------------------------------------------------------
--- Custom fontcreation
----------------------------------------------------------------------
-local SetFontString = function(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
-	local fs = parent:CreateFontString(nil, 'OVERLAY')
-	fs:SetFont(fontName, fontHeight, outline)
-	fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
-	fs:SetShadowColor(0, 0, 0, .7)
-	fs:SetShadowOffset(1, -1)
-	return fs
-end
-
----------------------------------------------------------------------
--- Right click player menu -- taken from p3lim's excellently coded layout
----------------------------------------------------------------------
-local function SpawnMenu(self)
-	ToggleDropDownMenu(1, nil, _G[string.gsub(self.unit, '^.', string.upper)..'FrameDropDown'], 'cursor')
-end
-
----------------------------------------------------------------------
 -- HP BG Updater
 ---------------------------------------------------------------------
-local updateHealthBG = function(self, event, unit, bar, min, max)
+oUFYna.updateHealthBG = function(self, event, unit, bar, min, max)
 	element.__owner.HealPrediction:ForceUpdate()
 	if (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
 		local color = self.colors.tapped
