@@ -13,8 +13,9 @@ local texture = 'Interface\\TargetingFrame\\UI-StatusBar'
 --local texture = media..'dP.tga'
 local font = STANDARD_TEXT_FONT
 local numbers = 'Fonts\\skurri.TTF'
-local fontSize = 11
-local border = media..'border.tga'
+local fontSize = 12
+--local border = media..'border.tga'
+local border = media..'gloss.tga'
 
 local hpHeight = 20 -- height of healthbar of player/target/tot/focus/pet and height of castbar
 local ppHeight = 8 -- height of powerbar of player/target/pet
@@ -55,72 +56,6 @@ local function hex(r, g, b)
 end
 
 ---------------------------------------------------------------------
--- Custom tags
----------------------------------------------------------------------
-oUF.TagEvents['yna:AFKDND'] = 'PLAYER_FLAGS_CHANGED'
-oUF.Tags['yna:AFKDND'] = function(unit)
-	return UnitIsAFK(unit) and '|cffff0000A|r' or UnitIsDND(unit) and '|cffff00ffD|r' or Unit
-end
-
-oUF.Tags['yna:colorpp'] = function(unit)
-	local _, str = UnitPowerType(unit)
-	local coloredmana = _COLORS.power[str]
-	return coloredmana and string.format('|cff%02x%02x%02x', coloredmana[1] * 255, coloredmana[2] * 255, coloredmana[3] * 255)
-end
-
-oUF.TagEvents['yna:pp'] = 'UNIT_POWER'
-oUF.Tags['yna:pp'] = function(unit)
-	local power = UnitPower(unit)
-	if UnitIsDeadOrGhost(unit) then
-		return ''
-	elseif UnitPower(unit) <= 0 then
-		return ''
-	else
-		local _, type = UnitPowerType(unit)
-		local colors = _COLORS.power
-		return format('%s%s (%.1f%%)|r | ', Hex(colors[type] or colors['RUNES']), letter(UnitPower(unit)), UnitPower(unit)/UnitPowerMax(unit)*100)
-	end
-end
-
-oUF.TagEvents['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
-oUF.Tags['yna:shortname'] = function(unit)
-	local name = UnitName(unit)
-	return (string.len(name) > 10) and string.gsub(name, '%s?(.)%S+%s', '%1. ') or name
-end
-
-oUF.Tags['yna:smarthp'] = function(unit)
-	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
-end
-
-oUF.Tags['yna:druidpower'] = function(unit)
-	local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
-	if(UnitPowerType(unit) ~= 0 and min ~= max) then
-		return ('|cff0090ff%d%%|r'):format(min / max * 100)
-	end
-end
-
-local Shadow_Orb = GetSpellInfo(77487)
-oUF.Tags['yna:ShadowOrbs'] = function(unit)
-    if(unit == 'player') then
-      local name, _, icon, count = UnitBuff('player', Shadow_Orb)
-	  return name and count
-    end
-end
-oUF.TagEvents['yna:ShadowOrbs'] = 'UNIT_AURA'
-
-local Evangelism = GetSpellInfo(81661) or GetSpellInfo(81660)
-local Dark_Evangelism = GetSpellInfo(87118) or GetSpellInfo(87117)
-oUF.Tags['yna:Evangelism'] = function(unit)
-	if unit == 'player' then
-      local name, _, icon, count = UnitBuff('player', Evangelism)
-	  if name then return count end
-	  name, _, icon, count = UnitBuff('player', Dark_Evangelism)
-	  return name and count
-	end
-end
-oUF.TagEvents['yna:Evangelism'] = 'UNIT_AURA'
-
----------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
 local PostCreateAura = function(element, button)
@@ -131,27 +66,6 @@ local PostCreateAura = function(element, button)
 	button.overlay:SetTexCoord(0, 1, 0, 1)
 	button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
 	button.icon:SetTexCoord(.07, .93, .07, .93)
-end
-
-local PostUpdateDebuff = function(element, unit, button, index)
-	if(UnitIsFriend('player', unit) or button.isPlayer) then
-		local _, _, _, _, type = UnitAura(unit, index, button.filter)
-		local color = DebuffTypeColor[type] or DebuffTypeColor.none
-
-		button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
-		button.icon:SetDesaturated(false)
-		button.overlay:SetTexture(border)
-		button.overlay:SetTexCoord(0, 1, 0, 1)
-		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
-		button.icon:SetTexCoord(.07, .93, .07, .93)
-	else
-		button:SetBackdropColor(0, 0, 0, 1)
-		button.icon:SetDesaturated(true)
-		button.overlay:SetTexture(border)
-		button.overlay:SetTexCoord(0, 1, 0, 1)
-		button.overlay.Hide = function(self) self:SetVertexColor(0.25, 0.25, 0.25) end
-		button.icon:SetTexCoord(.07, .93, .07, .93)
-	end
 end
 
 ---------------------------------------------------------------------
@@ -246,6 +160,7 @@ local UnitSpecific = {
 		self.Debuffs.initialAnchor = 'TOPRIGHT'
 		self.Debuffs['growth-x'] = 'LEFT'
 		self.Debuffs['growth-y'] = 'DOWN'
+		self.Debuffs.showDebuffType = true
 		self.Debuffs.PostCreateIcon = PostCreateAura
 		RuneFrame:Hide()
 		
@@ -293,6 +208,33 @@ local UnitSpecific = {
 			end
 		end
 	
+		-- Totems
+		if (select(2, UnitClass('player')) == 'SHAMAN') then
+			self.Totems = CreateFrame('Frame', nil, self)
+			
+			for i = 1, 4 do
+				self.Totems[i] = CreateFrame('StatusBar', nil, self.Totems)
+				self.Totems[i]:SetSize(plWidth/5 - .85, 10)
+				self.Totems[i]:SetStatusBarTexture(texture)
+				
+				if (i == 1) then
+					self.Totems[1]:SetPoint('RIGHT', self, 'TOPRIGHT', -2, 0)
+				else
+					self.Totems[i]:SetPoint('TOPRIGHT', self.Totems[i-1], 'TOPLEFT', -1, 0)
+				end
+				
+				self.Totems[i].bg = self.Totems[i]:CreateTexture(nil, 'BACKGROUND')
+				self.Totems[i].bg:SetAllPoints(self.Totems[i])
+				self.Totems[i].bg:SetTexture(texture)
+				self.Totems[i].bg.multiplier = 0.25
+			end
+			
+			self.Totems[1]:SetStatusBarColor(unpack(self.colors.totems[FIRE_TOTEM_SLOT]))
+			self.Totems[2]:SetStatusBarColor(unpack(self.colors.totems[EARTH_TOTEM_SLOT]))
+			self.Totems[3]:SetStatusBarColor(unpack(self.colors.totems[WATER_TOTEM_SLOT]))
+			self.Totems[4]:SetStatusBarColor(unpack(self.colors.totems[AIR_TOTEM_SLOT]))
+		end
+		
 		--[[ Totembar
 		if(IsAddOnLoaded('oUF_boring_TotemBar') and select(2, UnitClass('player')) == 'SHAMAN') then
 			self.TotemBar = {
@@ -300,40 +242,42 @@ local UnitSpecific = {
 				Destroy = true,
 				UpdateColors = true,
 			}
+					
+		for i = 1, 4 do
+			self.TotemBar[i] = CreateFrame('Frame', nil, self)
+			self.TotemBar[i]:SetHeight(7)
+			self.TotemBar[i]:SetWidth(plWidth/4 - 0.85)
 			
-			for i = 1, 4 do
-				self.TotemBar[i] = CreateFrame('Frame', nil, self)
-				self.TotemBar[i]:SetHeight(7)
-				self.TotemBar[i]:SetWidth(plWidth/4 - 0.85)
-				
-				if (i == 1) then
-					self.TotemBar[i]:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -4)
-				else
-					self.TotemBar[i]:SetPoint('TOPLEFT', self.TotemBar[i-1], 'TOPRIGHT', 1, 0)
-				end
-				
-				self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, 'BACKGROUND')
-				self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
-				self.TotemBar[i].bg:SetTexture(texture)
-				self.TotemBar[i].bg.multiplier = 0.25
-				
-				self.TotemBar[i].StatusBar = CreateFrame('StatusBar', nil)
-				self.TotemBar[i].StatusBar:SetStatusBarTexture(texture)
-				self.TotemBar[i].StatusBar:SetBackdrop{
-					bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
-					insets = {left = -2, right = -2, top = -2, bottom = -2},
-				}
-				self.TotemBar[i].StatusBar:SetHeight(7)
-				self.TotemBar[i].StatusBar:SetWidth(plWidth/4 - 0.85)
-				
-				--self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
-				--self.TotemBar[i]:SetMinMaxValues(0, 1)
-				
-				self.TotemBar[i].Time = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'RIGHT', self.TotemBar[i], 'RIGHT', 0, 2)
-				self.TotemBar[i].Text = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'LEFT', self.TotemBar[i], 'LEFT', 0, 2)
+			if (i == 1) then
+				self.TotemBar[i]:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -4)
+			else
+				self.TotemBar[i]:SetPoint('TOPLEFT', self.TotemBar[i-1], 'TOPRIGHT', 1, 0)
+			end
+
+			self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, 'BACKGROUND')
+			self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
+			self.TotemBar[i].bg:SetTexture(texture)
+			self.TotemBar[i].bg.multiplier = 0.25
+			
+			self.TotemBar[i].StatusBar = CreateFrame('StatusBar', nil)
+			self.TotemBar[i].StatusBar:SetStatusBarTexture(texture)
+			self.TotemBar[i].StatusBar:SetBackdrop{
+				bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
+				insets = {left = -2, right = -2, top = -2, bottom = -2},
+			}
+			self.TotemBar[i].StatusBar:SetHeight(7)
+			self.TotemBar[i].StatusBar:SetWidth(plWidth/4 - 0.85)
+			
+			--self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
+			--self.TotemBar[i]:SetMinMaxValues(0, 1)
+			
+			self.TotemBar[i].Time = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'RIGHT', self.TotemBar[i], 'RIGHT', 0, 2)
+			
+			self.TotemBar[i].Text = self.TotemBar:SetFontString(self.TotemBar[i], font, fontSize, 'LEFT', self.TotemBar[i], 'LEFT', 0, 2)
 			end
 		end
 		--]]
+
 		-- Eclipsebar
 		if select(2, UnitClass('player')) == 'DRUID' then
 			self.EclipseBar = CreateFrame('Frame', nil, self)
@@ -446,6 +390,8 @@ local UnitSpecific = {
 		self.Buffs.size = hpHeight+ppHeight
 		self.Buffs.spacing = 2
 		self.Buffs.initialAnchor = 'TOPLEFT'
+		--self.Buffs.showBuffType = true
+		self.Buffs.onlyShowPlayer = true
 		self.Buffs.PostCreateIcon = PostCreateAura
 
 		self.Debuffs = CreateFrame('Frame', nil, self)
@@ -457,6 +403,7 @@ local UnitSpecific = {
 		self.Debuffs.onlyShowPlayer = true
 		self.Debuffs.initialAnchor = 'TOPLEFT'
 		self.Debuffs['growth-y'] = 'DOWN'
+		self.Debuffs.showDebuffType = true
 		self.Debuffs.PostCreateIcon = PostCreateAura
 		
 		self.cPoints = self:CreateFontString(nil, 'OVERLAY', 'SubZoneTextFont')
@@ -743,18 +690,17 @@ local function Shared(self, unit)
 	mhpb:SetPoint('BOTTOMLEFT', self.Health:GetStatusBarTexture(), 'BOTTOMRIGHT')
 	mhpb:SetFrameLevel(1)
 	
-	--[[ Alt Power
-	--Alternative Power Bar
-	self.AltPowerBar = CreateFrame("StatusBar", nil, self.Power)
+	-- Alt Power
+	self.AltPowerBar = CreateFrame("StatusBar", nil, self)
 	self.AltPowerBar:SetStatusBarTexture(texture)
-	self.AltPowerBar:GetStatusBarTexture():SetHorizTile(false)
-	self.AltPowerBar:SetFrameStrata("MEDIUM")
+	self.AltPowerBar:SetHeight(20)
+	self.AltPowerBar:SetStatusBarColor(1, 1, 1)
 	self.AltPowerBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT")
 	self.AltPowerBar:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
 
-		
 	self.AltPowerBar.text  = SetFontString(self.Health, font, 13, 'CENTER', self.AltPowerBar, 'TOPRIGHT', 0, 0)	
-	--]]	
+
+	-- HealPrediction
 	local ohpb = CreateFrame('StatusBar',nil,self.Health)
 	ohpb:SetStatusBarTexture(texture)
 	ohpb:SetStatusBarColor(0.25,1,0,.5)

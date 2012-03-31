@@ -6,7 +6,8 @@ local texture = 'Interface\\TargetingFrame\\UI-StatusBar'
 local font = STANDARD_TEXT_FONT
 local numbers = 'Fonts\\skurri.TTF'
 local fontSize = 11
-local border = media..'border.tga'
+--local border = media..'border.tga'
+local border = media..'gloss.tga'
 
 --I got tired of typing this all the damn time k?
 local backdrop = {
@@ -50,12 +51,15 @@ oUF.Tags["[colorpp]"] = function(unit) -- from p3lim"s excellently coded layout
 	return string.format("|cff%02x%02x%02x", c[1] * 255, c[2] * 255, c[3] * 255)
 end
 
-oUF.Tags["[yna_shortname]"] = function(u)
-	local name = UnitName(u)
-	return (string.len(name) > 10) and string.gsub(name, "%s?(.)%S+%s", "%1. ") or name
+oUF.TagEvents['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
+oUF.Tags['yna:shortname'] = function(unit)
+	local name = UnitName(unit)
+	return (string.len(name) > 10) and string.gsub(name, '%s?(.)%S+%s', '%1. ') or name
 end
 
-oUF.TagEvents["[yna_shortname]"] = "PLAYER_FLAGS_CHANGED"
+oUF.Tags['yna:smarthp'] = function(unit)
+	return UnitIsDeadOrGhost(unit) and oUF.Tags['[dead]'](unit) or (UnitHealth(unit)~=UnitHealthMax(unit)) and format('%s (%.0f%%)', letter(UnitHealth(unit)), (UnitHealth(unit)/UnitHealthMax(unit)*100) or letter(UnitHealthMax(unit)))
+end
 
 ---------------------------------------------------------------------
 -- Custom fontcreation
@@ -100,7 +104,8 @@ local createBossBars = function(self, unit)
 	
 	-- HP Text
 	self.Health.value = SetFontString(self.Health, font, fontSize+1, 'RIGHT', self.Health, 'RIGHT', -2, 0)
-	self:Tag(self.Health.value, '[curhp]')
+	self.Health.value:SetWidth(100)
+	self:Tag(self.Health.value, '[curhp] ([perhp]%)')
 	
 	-- HP BG
 	self.Health.bg = self.Health:CreateTexture(nil, 'BACKGROUND')
@@ -114,7 +119,7 @@ local createBossBars = function(self, unit)
 	self.Power:SetPoint('TOPRIGHT', self.Health, 'BOTTOMRIGHT', 0, -2)
 	self.Power:SetPoint('TOPLEFT', self.Health, 'BOTTOMLEFT', 0, -2)
 	self.Power:SetStatusBarTexture(texture)
-	self.Power:SetHeight(10)
+	self.Power:SetHeight(5)
 	self.Power.frequentUpdates = true
 
 	-- PP BG
@@ -123,31 +128,8 @@ local createBossBars = function(self, unit)
 	self.Power.bg:SetTexture(texture)
 	self.Power.bg.multiplier = .2
 	
-	-- PP text
-	self.Power.value = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
-	self.Power.value:SetTextColor(1, 1, 1)
-	self:Tag(self.Power.value, '[yna:colorpp][curpp< ]')
-	
-	--[[ Alt Power 
-	self.AltPowerBar = CreateFrame("StatusBar", nil, self)
-	self.AltPowerBar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
-	self.AltPowerBar:SetSize(200, 10)
-	self.AltPowerBar:SetStatusBarTexture(statusbar)
-	self.AltPowerBar:SetStatusBarColor(1, 0, 0)
-	self.AltPowerBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 5)
-	
-	self.AltPowerBar.bg = self.Power:CreateTexture(nil, 'BACKGROUND')
-	self.AltPowerBar.bg:SetAllPoints(self.Power)
-	self.AltPowerBar.bg:SetTexture(texture)
-	self.AltPowerBar.bg.multiplier = .2
-	--]]
-	-- CombatFeedback (And heals)
-	if(IsAddOnLoaded('oUF_CombatFeedback')) then
-		self.CombatFeedbackText = SetFontString(self.Health, font, fontSize+1, 'CENTER', self.Health, 'CENTER', 0, 0)
-		self.CombatFeedbackText.ignoreHeal = true -- ignore heals 
-		self.CombatFeedbackText:SetShadowOffset(1, -1)
-		self.CombatFeedbackText:SetShadowColor(0, 0, 0)
-	end
+	self.Name = SetFontString(self.Health, font, fontSize+1, 'LEFT', self.Health, 'LEFT', 2, 0)
+	self:Tag(self.Name,'L[difficulty][smartlevel][yna:shortname]')
 	
 	-- New QuestIcon shit
 	self.QuestIcon = self.Health:CreateTexture(nil, 'OVERLAY')
@@ -172,14 +154,8 @@ local boss = {}
 for i = 1, MAX_BOSS_FRAMES do
 	boss[i] = oUF:Spawn("boss"..i, "oUF_YnaBoss"..i)
 	if i==1 then
-		boss[i]:SetPoint("RIGHT", UIParent, "CENTER", -5, -450)
+		boss[i]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", 15, 450)
 	else
 		boss[i]:SetPoint("BOTTOMLEFT", boss[i-1], "TOPLEFT", 0, 5)
 	end
-end
-
-local bosstarget = {}
-for i = 1, MAX_BOSS_FRAMES do
-	bosstarget[i] = oUF:Spawn('boss'..i..'target', 'oUF_YnaBoss'..i)
-	bosstarget[i]:SetPoint('LEFT', 'oUF_YnaBoss'..i, 'RIGHT', 10, 0)
 end

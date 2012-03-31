@@ -7,6 +7,7 @@
 ## OptionalDeps: oUF_CombatFeedback, oUF_DebuffHighlight, oUF_Swing, oUF_boring_TotemBar
 
 ynarah.xml
+tags.lua
 layout.lua
 bossbars.lua
 #raid.lua

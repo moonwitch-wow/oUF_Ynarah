@@ -7,7 +7,8 @@ local statusbar = "Interface\\TargetingFrame\\UI-StatusBar"
 local font = STANDARD_TEXT_FONT
 local numbers = "Fonts\\skurri.TTF"
 local fontSize = 11
-local border = media.."border"
+--local border = media..'border.tga'
+local border = media..'gloss.tga'
 
 local ptyWidth = 135
 local ptyHeight = 15
