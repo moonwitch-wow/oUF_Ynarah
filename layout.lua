@@ -33,29 +33,6 @@ local backdropcolor = {.1,.1,.1,1}
 local backdropbordercolor = {.6,.6,.6,1}
 
 ---------------------------------------------------------------------
--- Converts 1000000 into 1M
----------------------------------------------------------------------
-local letter = function(value) -- to shorten HP/MP strings at full
-	if value >= 1e6 then
-		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-	elseif value >= 1e3 or value <= -1e3 then
-		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-	else
-		return value
-	end
-end
-
----------------------------------------------------------------------
--- Colorize NOW
----------------------------------------------------------------------
-local function hex(r, g, b)
-	if(type(r) == 'table') then
-		if(r.r) then r, g, b = r.r, r.g, r.b else r, g, b = unpack(r) end
-	end
-	return ('|cff%02x%02x%02x'):format(r * 255, g * 255, b * 255)
-end
-
----------------------------------------------------------------------
 -- Aura Skinning
 ---------------------------------------------------------------------
 local PostCreateAura = function(element, button)

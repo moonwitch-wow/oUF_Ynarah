@@ -1,17 +1,4 @@
 ---------------------------------------------------------------------
--- Converts 1000000 into 1M
----------------------------------------------------------------------
-local letter = function(value) -- to shorten HP/MP strings at full
-	if value >= 1e6 then
-		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-	elseif value >= 1e3 or value <= -1e3 then
-		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-	else
-		return value
-	end
-end
-
----------------------------------------------------------------------
 -- Custom tags
 ---------------------------------------------------------------------
 oUF.TagEvents['yna:AFKDND'] = 'PLAYER_FLAGS_CHANGED'
