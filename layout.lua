@@ -39,7 +39,7 @@ local UnitSpecific = {
 	player = function(self)	
 		self:SetWidth(oUFYnaCfg.plWidth+4)
 		self:SetHeight(oUFYnaCfg.hpHeight+oUFYnaCfg.ppHeight+6)
-		self.Power:SetHeight(oUFYnaCfg.oUFYnaCfg.ppHeight)
+		self.Power:SetHeight(oUFYnaCfg.ppHeight)
 		
 		self:SetBackdrop(oUFYnaCfg.backdrop)
 		self:SetBackdropColor(.1,.1,.1,1)
@@ -311,7 +311,7 @@ local UnitSpecific = {
 	
 	target = function(self)
 		self:SetWidth(oUFYnaCfg.plWidth+4)
-		self:SetHeight(hpHeight+oUFYnaCfg.ppHeight+6)
+		self:SetHeight(oUFYnaCfg.hpHeight+oUFYnaCfg.ppHeight+6)
 		self.Power:SetHeight(oUFYnaCfg.ppHeight)
 		
 		self:SetBackdrop(oUFYnaCfg.backdrop)
@@ -327,7 +327,7 @@ local UnitSpecific = {
 		
 		self.Buffs = CreateFrame('Frame', nil, self)
 		self.Buffs:SetPoint('TOPLEFT', self.Health, 'BOTTOMRIGHT', 10, 0)
-		self.Buffs:SetHeight(oUFYnaCfg.hpHeight+ppHeight)
+		self.Buffs:SetHeight(oUFYnaCfg.hpHeight+oUFYnaCfg.ppHeight)
 		self.Buffs:SetWidth(oUFYnaCfg.plWidth)
 		self.Buffs.num = 18
 		self.Buffs.size = oUFYnaCfg.hpHeight+oUFYnaCfg.ppHeight
@@ -522,7 +522,7 @@ local function Shared(self, unit)
 			self.Castbar:SetPoint('BOTTOM', oUF.units.target, 'TOP', 0, 4)
 		elseif unit == 'focus' then
 			self.Castbar:SetWidth(oUFYnaCfg.focWidth)
-			self.Castbar:SetHeight(ppHeight-1)
+			self.Castbar:SetHeight(oUFYnaCfg.ppHeight-1)
 			self.Castbar:SetParent(oUF.units.focus)
 			self.Castbar:SetPoint('TOP', oUF.units.focus, 'BOTTOM', 0, -4)
 		else
