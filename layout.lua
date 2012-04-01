@@ -266,10 +266,10 @@ local UnitSpecific = {
 		end
 		
 		-- Combopoints
-		--local h = CreateFrame("Frame", nil, self)
-		--h:SetAllPoints(self.Health)
-		--h:SetFrameLevel(10)
-		self.cPoints = oUFYna.SetFontString(self.Health, oUFYnaCfg.font, 35, 'CENTER', self.Health, 'CENTER', 0, 3, 'THINOUTLINE')
+		local h = CreateFrame("Frame", nil, self)
+		h:SetAllPoints(self.Health)
+		h:SetFrameLevel(10)
+		self.cPoints = oUFYna.SetFontString(h, oUFYnaCfg.font, 35, 'CENTER', self.Health, 'CENTER', 0, 3, 'THINOUTLINE')
 		self:Tag(self.cPoints, '[yna:cp]')
 	end,
 	
