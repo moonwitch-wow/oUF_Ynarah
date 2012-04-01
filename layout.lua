@@ -165,49 +165,6 @@ local UnitSpecific = {
 			self.Totems[4]:SetStatusBarColor(unpack(self.colors.totems[AIR_TOTEM_SLOT]))
 		end
 		
-		--[[ Totembar
-		if(IsAddOnLoaded('oUF_boring_TotemBar') and select(2, UnitClass('player')) == 'SHAMAN') then
-			self.TotemBar = {
-				AbbreviateNames = true,
-				Destroy = true,
-				UpdateColors = true,
-			}
-					
-		for i = 1, 4 do
-			self.TotemBar[i] = CreateFrame('Frame', nil, self)
-			self.TotemBar[i]:SetHeight(7)
-			self.TotemBar[i]:SetWidth(oUFYnaCfg.plWidth/4 - 0.85)
-			
-			if (i == 1) then
-				self.TotemBar[i]:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -4)
-			else
-				self.TotemBar[i]:SetPoint('TOPLEFT', self.TotemBar[i-1], 'TOPRIGHT', 1, 0)
-			end
-
-			self.TotemBar[i].bg = self.TotemBar[i]:CreateTexture(nil, 'BACKGROUND')
-			self.TotemBar[i].bg:SetAllPoints(self.TotemBar[i])
-			self.TotemBar[i].bg:SetTexture(texture)
-			self.TotemBar[i].bg.multiplier = 0.25
-			
-			self.TotemBar[i].StatusBar = CreateFrame('StatusBar', nil)
-			self.TotemBar[i].StatusBar:SetStatusBarTexture(texture)
-			self.TotemBar[i].StatusBar:SetBackdrop{
-				bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
-				insets = {left = -2, right = -2, top = -2, bottom = -2},
-			}
-			self.TotemBar[i].StatusBar:SetHeight(7)
-			self.TotemBar[i].StatusBar:SetWidth(oUFYnaCfg.plWidth/4 - 0.85)
-			
-			--self.TotemBar[i]:SetBackdropColor(0, 0, 0, .3)
-			--self.TotemBar[i]:SetMinMaxValues(0, 1)
-			
-			self.TotemBar[i].Time = self.TotemBar:oUFYna.SetFontString(self.TotemBar[i], oUFYnaCfg.font, oUFYnaCfg.fontSize, 'RIGHT', self.TotemBar[i], 'RIGHT', 0, 2)
-			
-			self.TotemBar[i].Text = self.TotemBar:oUFYna.SetFontString(self.TotemBar[i], oUFYnaCfg.font, oUFYnaCfg.fontSize, 'LEFT', self.TotemBar[i], 'LEFT', 0, 2)
-			end
-		end
-		--]]
-
 		-- Eclipsebar
 		if select(2, UnitClass('player')) == 'DRUID' then
 			self.EclipseBar = CreateFrame('Frame', nil, self)
