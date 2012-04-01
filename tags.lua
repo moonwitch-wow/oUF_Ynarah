@@ -50,6 +50,7 @@ oUF.Tags['yna:druidpower'] = function(unit)
 end
 oUF.TagEvents['yna:druidpower'] = 'UNIT_DISPLAYPOWER'
 
+-- Special powers
 local Shadow_Orb = GetSpellInfo(77487)
 oUF.Tags['yna:ShadowOrbs'] = function(unit)
     if(unit == 'player') then
@@ -71,7 +72,6 @@ oUF.Tags['yna:Evangelism'] = function(unit)
 end
 oUF.TagEvents['yna:Evangelism'] = 'UNIT_AURA'
 
--- special powers
 oUF.Tags['yna:sp'] = function(unit)
 	local _, class = UnitClass(u)
 	local SP, spcol = 0,{}

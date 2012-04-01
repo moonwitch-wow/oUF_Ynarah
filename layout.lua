@@ -307,6 +307,13 @@ local UnitSpecific = {
 		elseif select(2, UnitClass('player')) == "SHAMAN" then
 			self:Tag(self.specPower, '[yna:ws][yna:ls]')
 		end
+		
+		-- Combopoints
+		--local h = CreateFrame("Frame", nil, self)
+		--h:SetAllPoints(self.Health)
+		--h:SetFrameLevel(10)
+		self.cPoints = oUFYna.SetFontString(self.Health, oUFYnaCfg.font, 35, 'CENTER', self.Health, 'CENTER', 0, 3, 'THINOUTLINE')
+		self:Tag(self.cPoints, '[yna:cp]')
 	end,
 	
 	target = function(self)
@@ -348,15 +355,6 @@ local UnitSpecific = {
 		self.Debuffs['growth-y'] = 'DOWN'
 		self.Debuffs.showDebuffType = true
 		self.Debuffs.PostCreateIcon = oUFYna.PostCreateAura
-		
-		self.cPoints = self:CreateFontString(nil, 'OVERLAY', 'SubZoneTextFont')
-		self.cPoints:SetPoint('RIGHT', self, 'LEFT', -9, 0)
-		self.cPoints:SetTextColor(1, 1, 1)
-		self.cPoints:SetJustifyH('RIGHT')
-		self.cPoints.unit = PlayerFrame.unit
-		self:Tag(self.cPoints, '|cffffffff[cpoints]|r')
-		
-	
 	end,
 	
 	targettarget = function(self)
