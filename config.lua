@@ -10,14 +10,13 @@ oUFYnaCfg = {}
 -- Configuration
 ---------------------------------------------------------------------
 oUFYnaCfg = {
-["media"] = 'Interface\\AddOns\\oUF_Ynarah\\media\\',
 ["texture"] = 'Interface\\TargetingFrame\\UI-StatusBar',
---["texture"] = media..'dP.tga',
+--["texture"] = 'Interface\\AddOns\\oUF_Ynarah\\media\\dP.tga',
 ["font"] = STANDARD_TEXT_FONT,
 ["numbers"] = 'Fonts\\skurri.TTF',
 ["fontSize"] = 12,
---["border"] = media..'border.tga',
-["border"] = media..'gloss.tga',
+--["border"] = 'Interface\\AddOns\\oUF_Ynarah\\media\\border.tga',
+["border"] = 'Interface\\AddOns\\oUF_Ynarah\\media\\gloss.tga',
 
 ["hpHeight"] = 20, -- height of healthbar of player/target/tot/focus/pet and height of castbar
 ["ppHeight"] = 8, -- height of powerbar of player/target/pet
