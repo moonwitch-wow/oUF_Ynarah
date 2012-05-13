@@ -1,1 +1,5 @@
+# ditching Windows
 desktop.ini
+
+# Mac OS X Finder and whatnot
+.DS_Store
