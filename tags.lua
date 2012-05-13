@@ -48,7 +48,8 @@ oUF.Tags['yna:druidpower'] = function(unit)
 		return ('|cff0090ff%d%%|r'):format(min / max * 100)
 	end
 end
-oUF.TagEvents['yna:druidpower'] = 'UNIT_DISPLAYPOWER'
+oUF.TagEvents['yna:druidpower'] = 'UNIT_POWER UNIT_MAXPOWER UPDATE_SHAPESHIFT_FORM'
+
 
 -- Special powers
 local Shadow_Orb = GetSpellInfo(77487)
@@ -149,9 +150,9 @@ oUF.Tags['yna:ls'] = function(unit)
 		end
 	else
 		if lsc == 1 then
-			return "|cff434343_|r"
+			return "|cff43BFD6_|r"
 		elseif lsc == 2 then
-			return "|cff434343_ _|r"
+			return "|cff4378D6_ _|r"
 		elseif lsc == 7 then
 			return "|cffFFF130_|r |cff434343_ _|r"
 		elseif lsc == 8 then
@@ -159,7 +160,7 @@ oUF.Tags['yna:ls'] = function(unit)
 		elseif lsc == 9 then
 			return "|cffFF6161_ _ _|r"
 		elseif lsc then
-			return "|cff434343_ _ _|r"
+			return "|cff4343D6_ _ _|r"
 		end
 	end
 end

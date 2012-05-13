@@ -163,14 +163,17 @@ local UnitSpecific = {
 			self.Totems[2]:SetStatusBarColor(unpack(self.colors.totems[EARTH_TOTEM_SLOT]))
 			self.Totems[3]:SetStatusBarColor(unpack(self.colors.totems[WATER_TOTEM_SLOT]))
 			self.Totems[4]:SetStatusBarColor(unpack(self.colors.totems[AIR_TOTEM_SLOT]))
+			--TotemBar.Destroy = true
+			--TotemBar.UpdateColors = true
+			--TotemBar.AbbreviateNames = true
 		end
 		
 		-- Eclipsebar
 		if select(2, UnitClass('player')) == 'DRUID' then
 			self.EclipseBar = CreateFrame('Frame', nil, self)
 			self.EclipseBar:SetSize(oUFYnaCfg.plWidth, 4)
-			self.EclipseBar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -2)
-			self.EclipseBar:SetPoint('TOPRIGHT', self.Power, 'BOTTOMRIGHT', 0, -2)
+			self.EclipseBar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -3)
+			self.EclipseBar:SetPoint('TOPRIGHT', self.Power, 'BOTTOMRIGHT', 0, -3)
 			self.EclipseBar:SetBackdrop(oUFYnaCfg.backdrop)
 			self.EclipseBar:SetBackdropColor(.1,.1,.1,1)
 			self.EclipseBar:SetBackdropBorderColor(.6,.6,.6,1)
@@ -179,15 +182,28 @@ local UnitSpecific = {
 			self.EclipseBar.LunarBar:SetPoint('LEFT', self.EclipseBar, 'LEFT', 0, 0)
 			self.EclipseBar.LunarBar:SetSize(oUFYnaCfg.plWidth, 4)
 			self.EclipseBar.LunarBar:SetStatusBarTexture(oUFYnaCfg.texture)
-			self.EclipseBar.LunarBar:SetStatusBarColor(0, 144/255, 1)
+			self.EclipseBar.LunarBar:SetStatusBarColor(0.95, 0.73, 0.15)
 			
 			self.EclipseBar.SolarBar = CreateFrame('StatusBar', nil, self.EclipseBar)
 			self.EclipseBar.SolarBar:SetPoint('LEFT', self.EclipseBar.LunarBar:GetStatusBarTexture(), 'RIGHT', 0, 0)
 			self.EclipseBar.SolarBar:SetSize(oUFYnaCfg.plWidth, 4)
 			self.EclipseBar.SolarBar:SetStatusBarTexture(oUFYnaCfg.texture)
-			self.EclipseBar.SolarBar:SetStatusBarColor(0.95, 0.73, 0.15)
-		end
+			self.EclipseBar.SolarBar:SetStatusBarColor(0, 144/255, 1)
+			--[[
+			self.EclipseBar.border = CreateFrame('StatusBar', nil, self.EclipseBar)
+			--self.EclipseBar.border:SetPoint('TOPRIGHT', self, 'BOTTOMRIGHT', 4, -2)
+			--self.EclipseBar.border:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', -4, 2)
+			self.EclipseBar.border:SetAllPoints(self.EclipseBar)
+			--self.EclipseBar.border:SetFrameLevel(self.EclipseBar:GetFrameLevel() + 2)
 		
+			self.EclipseBar.border:SetBackdrop(oUFYnaCfg.backdrop)
+			self.EclipseBar.border:SetBackdropColor(.1,.1,.1,1)
+			self.EclipseBar.border:SetBackdropBorderColor(.6,.6,.6,1)
+			--]]
+			--self.EclipseBar.Text = oUFYna.SetFontString(self.EclipseBar, oUFYnaCfg.font, oUFYnaCfg.fontSize, 'CENTER', self.EclipseBar, 'CENTER', 0, 0, 'THINOUTLINE')
+			--self:Tag(self.EclipseBar.Text, '[pereclipse]%')
+		end
+
 		-- HolyPower
 		if select(2, UnitClass('player')) ==  'PALADIN' then
 			self.HolyPower = CreateFrame('Frame', nil, self)
@@ -253,7 +269,7 @@ local UnitSpecific = {
 		end
 		
 		-- yay player specs
-		self.specPower = oUFYna.SetFontString(self.Health, oUFYnaCfg.font, 30, 'CENTER', self.Health, 'CENTER', 0, 3, 'MONOCHROMEOUTLINE')
+		self.specPower = oUFYna.SetFontString(self.Health, oUFYnaCfg.font, 36, 'CENTER', self.Health, 'CENTER', 0, 3, 'MONOCHROMEOUTLINE')
 
 		if select(2, UnitClass('player')) == "DRUID" then
 			self:Tag(self.specPower, '[yna:wm1][yna:wm2][yna:wm3]')
@@ -269,7 +285,7 @@ local UnitSpecific = {
 		local h = CreateFrame("Frame", nil, self)
 		h:SetAllPoints(self.Health)
 		h:SetFrameLevel(10)
-		self.cPoints = oUFYna.SetFontString(h, oUFYnaCfg.font, 35, 'CENTER', self.Health, 'CENTER', 0, 3, 'THINOUTLINE')
+		self.cPoints = oUFYna.SetFontString(h, oUFYnaCfg.font, 35, 'CENTER', self.Health, 'CENTER', 0, 5, 'THINOUTLINE')
 		self:Tag(self.cPoints, '[yna:cp]')
 	end,
 	
@@ -414,7 +430,7 @@ local function Shared(self, unit)
 	self:RegisterForClicks('AnyDown')
 	self:SetScript('OnEnter', UnitFrame_OnEnter)
 	self:SetScript('OnLeave', UnitFrame_OnLeave)
-	self.menu = SpawnMenu
+	self.menu = oUFYna.SpawnMenu
 	
 	-- HP FG
 	self.Health = CreateFrame('StatusBar', nil, self)
@@ -453,7 +469,7 @@ local function Shared(self, unit)
 	-- Castbar
 	if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
 		self.Castbar = CreateFrame('StatusBar')
-		
+		--background/border
 		self.Castbar2 = CreateFrame('StatusBar', nil, self.Castbar)
 		self.Castbar2:SetPoint('BOTTOMRIGHT', self.Castbar, 'BOTTOMRIGHT', 2, -2)
 		self.Castbar2:SetPoint('TOPLEFT', self.Castbar, 'TOPLEFT', -2, 2)
