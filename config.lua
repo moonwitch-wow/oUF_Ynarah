@@ -20,8 +20,8 @@ oUFYnaCfg = {
 
 ["hpHeight"] = 20, -- height of healthbar of player/target/tot/focus/pet and height of castbar
 ["ppHeight"] = 8, -- height of powerbar of player/target/pet
-["plWidth"] = 325, -- width of player/target and width of castbar
-["focWidth"] = 185, -- width of tot/focus
+["plWidth"] = 300, -- width of player/target and width of castbar
+["focWidth"] = 165, -- width of tot/focus
 
 --I got tired of typing this all the damn time k?
 ["backdrop"] = {
