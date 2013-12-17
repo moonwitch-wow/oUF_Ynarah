@@ -1,14 +1,9 @@
-﻿## Interface: 40300
+﻿## Interface: 50400
 ## Title: oUF_Ynarah
 ## Author: Moonwitch
 ## RequiredDeps: oUF
-## OptionalDeps: oUF_CombatFeedback, oUF_DebuffHighlight, oUF_Swing, oUF_BarFader
 
 ynarah.xml
-config.lua
-func.lua
 tags.lua
 layout.lua
-#bossbars.lua
-#raid.lua
-#layout_MT.lua
+raid.lua
