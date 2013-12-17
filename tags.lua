@@ -8,35 +8,43 @@ local tagevents = oUF.TagEvents or oUF.Tags.Events
 -- Util Funcs
 ------------------------------------------------------------------------
 local function SI(value)
-	if(value >= 1e6) then
-		return ('%.2fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-	elseif(value >= 1e4) then
-		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-	else
-		return value
-	end
+  if(value >= 1e6) then
+    return ('%.2fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
+  elseif(value >= 1e4) then
+    return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
+  else
+    return value
+  end
 end
 
+local function SetFontString(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
+  local fs = parent:CreateFontString(nil, 'OVERLAY')
+  fs:SetFont(fontName, fontHeight, outline)
+  fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
+  fs:SetShadowColor(0, 0, 0, .7)
+  fs:SetShadowOffset(1, -1)
+  return fs
+end
 ------------------------------------------------------------------------
 -- Tags - Generic
 ------------------------------------------------------------------------
 local function Status(unit)
-	if(not UnitIsConnected(unit)) then
-		return 'O'
-	elseif(UnitIsGhost(unit)) then
-		return 'G'
-	elseif(UnitIsDead(unit)) then
-		return 'D'
-	end
+  if(not UnitIsConnected(unit)) then
+    return 'O'
+  elseif(UnitIsGhost(unit)) then
+    return 'G'
+  elseif(UnitIsDead(unit)) then
+    return 'D'
+  end
 end
 
 oUF.Tags.Methods['yna:status'] = Status
 
 oUF.Tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
 oUF.Tags.Methods['yna:leader'] = function(unit)
-	if(UnitIsGroupLeader(unit)) then
-		return '|cffffff00!|r'
-	end
+  if(UnitIsGroupLeader(unit)) then
+    return '|cffffff00!|r'
+  end
 end
 
 ------------------------------------------------------------------------
