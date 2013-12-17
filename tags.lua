@@ -1,13 +1,13 @@
 ------------------------------------------------------------------------
 -- Namespace
 ------------------------------------------------------------------------
-local _, ns = ...
-local tags = ns.oUF.Tags
+local tags = oUF.Tags.Methods or oUF.Tags
+local tagevents = oUF.TagEvents or oUF.Tags.Events
 
 ------------------------------------------------------------------------
 -- Util Funcs
 ------------------------------------------------------------------------
-local function ShortValue(value)
+local function SI(value)
 	if(value >= 1e6) then
 		return ('%.2fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
 	elseif(value >= 1e4) then
@@ -30,10 +30,10 @@ local function Status(unit)
 	end
 end
 
-tags.Methods['yna:status'] = Status
+oUF.Tags.Methods['yna:status'] = Status
 
-tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
-tags.Methods['yna:leader'] = function(unit)
+oUF.Tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
+oUF.Tags.Methods['yna:leader'] = function(unit)
 	if(UnitIsGroupLeader(unit)) then
 		return '|cffffff00!|r'
 	end
