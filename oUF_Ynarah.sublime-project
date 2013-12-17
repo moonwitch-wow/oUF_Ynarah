@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF_Ynarah"
+		}
+	]
+}
