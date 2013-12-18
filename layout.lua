@@ -9,10 +9,17 @@ local oUF = ns.oUF or oUF
 ------------------------------------------------------------------------
 local titleFont = [=[Interface\AddOns\oUF_Ynarah\media\big_noodle_tilting.ttf]=]
 local normalFont = STANDARD_TEXT_FONT
+
 local backdropTexture = [=[Interface\ChatFrame\ChatFrameBackground]=]
 local backdrop = {
-  bgFile = backdropTexture, insets = {top = -1, bottom = -1, left = -1, right = -1}
-}
+  bgFile = "Interface\\Buttons\\WHITE8x8",
+  edgeFile = "Interface\\Buttons\\WHITE8x8",
+  edgeSize = 1,
+  insets = { left = -1, right = -1, top = -1, bottom = -1}
+  }
+local backdropColor = { r = .1, g = .1, b = .1, a = 1 }
+local backdropbordercolor = { r = .6, g = .6, b = .6, a = 1 }
+
 local statusbarTexture = [=[Interface\AddOns\oUF_Ynarah\media\statusbar]=]
 
 local playerSize = {250, 50}
@@ -42,54 +49,33 @@ end
 ------------------------------------------------------------------------
 local UnitSpecific = {
   player = function(self)
+    -- player unique
     self:SetSize(unpack(playerSize))
-    self:SetBackdrop(backdrop)
-
-    -- Healthbar
-    self.Health = CreateFrame("StatusBar", nil, self)
-    self.Health:SetHeight(40)
-    self.Health:SetStatusBarTexture(statusbarTexture)
-    self.Health:SetStatusBarColor(.25, .25, .25)
-
-    self.Health.frequentUpdates = true
-
-    self.Health:SetPoint"TOP"
-    self.Health:SetPoint"LEFT"
-    self.Health:SetPoint"RIGHT"
-
-    -- Powerbar
-    self.Power = CreateFrame("StatusBar", nil, self)
-    self.Power:SetHeight(5)
-    self.Power:SetStatusBarTexture(statusbarTexture)
-
-    self.Power.frequentUpdates = true
-    self.Power.colorTapping = true
-    self.Power.colorClass = true
-    self.Power.colorReaction = true
-
-    self.Power:SetPoint"LEFT"
-    self.Power:SetPoint"RIGHT"
-    self.Power:SetPoint("TOP", self.Health, "BOTTOM")
   end,
 
   target = function(self)
+    -- target unique
     self:SetSize(unpack(playerSize))
   end,
 
   targettarget = function(self)
     -- tot
+    self:SetSize(unpack(playerSize))
   end,
 
   party = function(self)
     -- party frames
+    self:SetSize(unpack(playerSize))
   end,
 
   boss = function(self)
     -- boss frames
+    self:SetSize(unpack(playerSize))
   end,
 
   pet = function(self)
     -- pet frames
+    self:SetSize(unpack(playerSize))
   end,
 }
 UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
@@ -98,12 +84,76 @@ UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
 -- Shared Setup
 ------------------------------------------------------------------------
 local function Shared(self, unit)
+  unit = unit:match('(boss)%d?$') or unit
+
   self:SetScript("OnEnter", UnitFrame_OnEnter)
   self:SetScript("OnLeave", UnitFrame_OnLeave)
 
   self:RegisterForClicks"AnyUp"
 
-  -- shared functions
+  -- shared setup
+  self:SetBackdrop(backdrop)
+  self:SetBackdropColor(unpack(backdropColor))
+  self:SetBackdropBorderColor(unpack(backdropbordercolor))
+
+  ----------------------------------------
+  -- Healthbar
+  ----------------------------------------
+  -- Position and size
+  local Health = CreateFrame("StatusBar", nil, self)
+  Health:SetHeight(25)
+  Health:SetPoint('TOP')
+  Health:SetPoint('LEFT')
+  Health:SetPoint('RIGHT')
+
+  -- Add a background
+  local Background = Health:CreateTexture(nil, 'BACKGROUND')
+  Background:SetAllPoints(Health)
+  Background:SetTexture(1, 1, 1, .5)
+
+  -- Options
+  Health.frequentUpdates = true
+  Health.colorTapping = true
+  Health.colorDisconnected = true
+  Health.colorClass = true
+  Health.colorReaction = true
+  Health.colorHealth = true
+
+  -- Make the background darker.
+  Background.multiplier = .5
+
+  -- Register it with oUF
+  self.Health = Health
+  self.Health.bg = Background
+
+  ----------------------------------------
+  -- Powerbar
+  ----------------------------------------
+  self.Power = CreateFrame("StatusBar", nil, self)
+  self.Power:SetHeight(5)
+  self.Power:SetStatusBarTexture(statusbarTexture)
+
+  self.Power.frequentUpdates = true
+  self.Power.colorTapping = true
+  self.Power.colorClass = true
+  self.Power.colorReaction = true
+
+  self.Power:SetPoint"LEFT"
+  self.Power:SetPoint"RIGHT"
+  self.Power:SetPoint("TOP", self.Health, "BOTTOM")
+
+  -- Register it with oUF
+  self.Power = Power
+  self.Power.bg = powerBackground
+  self.Power.values = PPPoints
+
+  ----------------------------------------
+  -- Castbar
+  ----------------------------------------
+
+  ----------------------------------------
+  -- Auras
+  ----------------------------------------
 
   -- leave this in!!
   if(UnitSpecific[unit]) then
