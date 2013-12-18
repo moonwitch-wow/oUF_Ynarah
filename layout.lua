@@ -42,54 +42,33 @@ end
 ------------------------------------------------------------------------
 local UnitSpecific = {
   player = function(self)
+    -- player unique
     self:SetSize(unpack(playerSize))
-    self:SetBackdrop(backdrop)
-
-    -- Healthbar
-    self.Health = CreateFrame("StatusBar", nil, self)
-    self.Health:SetHeight(40)
-    self.Health:SetStatusBarTexture(statusbarTexture)
-    self.Health:SetStatusBarColor(.25, .25, .25)
-
-    self.Health.frequentUpdates = true
-
-    self.Health:SetPoint"TOP"
-    self.Health:SetPoint"LEFT"
-    self.Health:SetPoint"RIGHT"
-
-    -- Powerbar
-    self.Power = CreateFrame("StatusBar", nil, self)
-    self.Power:SetHeight(5)
-    self.Power:SetStatusBarTexture(statusbarTexture)
-
-    self.Power.frequentUpdates = true
-    self.Power.colorTapping = true
-    self.Power.colorClass = true
-    self.Power.colorReaction = true
-
-    self.Power:SetPoint"LEFT"
-    self.Power:SetPoint"RIGHT"
-    self.Power:SetPoint("TOP", self.Health, "BOTTOM")
   end,
 
   target = function(self)
+    -- target unique
     self:SetSize(unpack(playerSize))
   end,
 
   targettarget = function(self)
     -- tot
+    self:SetSize(unpack(playerSize))
   end,
 
   party = function(self)
     -- party frames
+    self:SetSize(unpack(playerSize))
   end,
 
   boss = function(self)
     -- boss frames
+    self:SetSize(unpack(playerSize))
   end,
 
   pet = function(self)
     -- pet frames
+    self:SetSize(unpack(playerSize))
   end,
 }
 UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
