@@ -2,6 +2,7 @@
 ## Title: oUF_Ynarah
 ## Author: Moonwitch
 ## RequiredDeps: oUF
+## OptDepts: oUF_Fader
 
 ynarah.xml
 tags.lua
