@@ -44,6 +44,19 @@ end
 local function PostUpdateDebuff(element, unit, button, index)
 end
 
+-- Health Background Color Func
+local function updateHealthBG(self, event, unit, bar, min, max)
+ element.__owner.HealPrediction:ForceUpdate()
+ if (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
+   local color = self.colors.tapped
+   bar.bg:SetVertexColor(color[1] * 0.4, color[2] * 0.4, color[3]* 0.4)
+ else
+   local _, class = UnitClass(unit)
+   local color =  UnitIsPlayer(unit) and self.colors.class[class] or self.colors.reaction[UnitReaction(unit, 'player')] or {1,1,1}
+   bar.bg:SetVertexColor(color[1] * 0.4, color[2] * 0.4, color[3]* 0.4)
+ end
+end
+
 ------------------------------------------------------------------------
 -- UnitSpecific setups
 ------------------------------------------------------------------------
@@ -92,60 +105,73 @@ local function Shared(self, unit)
   self:RegisterForClicks"AnyUp"
 
   -- shared setup
-  self:SetBackdrop(backdrop)
-  self:SetBackdropColor(unpack(backdropColor))
-  self:SetBackdropBorderColor(unpack(backdropbordercolor))
+  -- self:SetBackdrop(backdrop)
+  -- self:SetBackdropColor(unpack(backdropColor))
+  -- self:SetBackdropBorderColor(unpack(backdropbordercolor))
+
+  ----------------------------------------
+  -- Powerbar
+  ----------------------------------------
+  local Power = CreateFrame("StatusBar", nil, self)
+  Power:SetHeight(25)
+  Power:SetStatusBarTexture(statusbarTexture)
+
+  -- Add a background
+  local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
+  powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
+  powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
+  powerBackground:SetTexture(.1, .1, .1, .9)
+  powerBackground.multiplier = .5
+
+  Power.frequentUpdates = true
+  Power.colorTapping = true
+  Power.colorClass = true
+  Power.colorReaction = true
+
+  Power:SetPoint('TOP')
+  Power:SetPoint('LEFT')
+  Power:SetPoint('RIGHT')
+
+  -- Register it with oUF
+  self.Power = Power
+  self.Power.bg = powerBackground
+  -- self.Power.values = PPPoints
 
   ----------------------------------------
   -- Healthbar
   ----------------------------------------
   -- Position and size
-  local Health = CreateFrame("StatusBar", nil, self)
-  Health:SetHeight(25)
-  Health:SetPoint('TOP')
-  Health:SetPoint('LEFT')
-  Health:SetPoint('RIGHT')
+  local Health = CreateFrame('StatusBar', nil, Power or self)
+  Health:SetPoint('TOPLEFT', Power, 'TOPLEFT', 8, -8)
+  Health:SetPoint('TOPRIGHT', Power, 'TOPRIGHT', 8, -8)
+  Health:SetStatusBarTexture(backdropTexture)
+  Health:SetHeight(30)
+  Health:SetStatusBarColor(.6, .6, .6)
+  Health.frequentUpdates = true
 
   -- Add a background
-  local Background = Health:CreateTexture(nil, 'BACKGROUND')
-  Background:SetAllPoints(Health)
-  Background:SetTexture(1, 1, 1, .5)
-
-  -- Options
-  Health.frequentUpdates = true
-  Health.colorTapping = true
-  Health.colorDisconnected = true
-  Health.colorClass = true
-  Health.colorReaction = true
-  Health.colorHealth = true
+  local healthBackground = Health:CreateTexture(nil, 'BACKGROUND')
+  healthBackground:SetPoint('TOPLEFT', Health, -1, 1)
+  healthBackground:SetPoint('BOTTOMRIGHT', Health, 1, -1)
+  healthBackground:SetTexture(.1, .1, .1, .9)
 
   -- Make the background darker.
-  Background.multiplier = .5
+  healthBackground.multiplier = .5
 
   -- Register it with oUF
   self.Health = Health
-  self.Health.bg = Background
+  self.Health.bg = healthBackground
+  self.PostUpdateHealth = updateHealthBG
 
   ----------------------------------------
-  -- Powerbar
+  -- Info String
   ----------------------------------------
-  self.Power = CreateFrame("StatusBar", nil, self)
-  self.Power:SetHeight(5)
-  self.Power:SetStatusBarTexture(statusbarTexture)
+  -- Position and size
+  -- local Info = Health:CreateTexture(nil, 'BACKGROUND')
+  -- Info:SetHeight(30)
+  -- Info:SetTexture(.1, .1, .1, .7)
+  -- Info:SetPoint('TOP', Health, 'TOP', 8, 8)
 
-  self.Power.frequentUpdates = true
-  self.Power.colorTapping = true
-  self.Power.colorClass = true
-  self.Power.colorReaction = true
-
-  self.Power:SetPoint"LEFT"
-  self.Power:SetPoint"RIGHT"
-  self.Power:SetPoint("TOP", self.Health, "BOTTOM")
-
-  -- Register it with oUF
-  self.Power = Power
-  self.Power.bg = powerBackground
-  self.Power.values = PPPoints
 
   ----------------------------------------
   -- Castbar
@@ -154,6 +180,23 @@ local function Shared(self, unit)
   ----------------------------------------
   -- Auras
   ----------------------------------------
+
+  ------------------------------------------------------------------------
+  -- Enable Plugins
+  ------------------------------------------------------------------------
+  self.SpellRange = true
+  self.Range = {
+    insideAlpha = 1,
+    outsideAlpha = 0.8,
+  }
+  self.MoveableFrames = true
+  -- self.FadeCasting = true  -- Fade if the unit is casting or not
+  -- self.FadeCombat = true  -- Fade if the player is in combat or not
+  -- self.FadeTarget = true  -- Fade if unit has a target or not
+  -- self.FadeHover = true  -- Fade if the unit is hovered by the mouse or not (only applies to frames)
+  -- self.FadeSmooth = 0.5
+  -- self.FadeMinAlpha = 0.3
+  -- self.FadeMaxAlpha = 1
 
   -- leave this in!!
   if(UnitSpecific[unit]) then
