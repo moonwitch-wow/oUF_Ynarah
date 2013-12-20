@@ -17,8 +17,8 @@ local backdrop = {
   edgeSize = 1,
   insets = { left = -1, right = -1, top = -1, bottom = -1}
   }
-local backdropColor = { r = .1, g = .1, b = .1, a = 1 }
-local backdropbordercolor = { r = .6, g = .6, b = .6, a = 1 }
+local backdropColor = { .1, .1, .1, .5 }
+local backdropbordercolor = { .6, .6 , .6, .5 }
 
 local statusbarTexture = [=[Interface\AddOns\oUF_Ynarah\media\statusbar]=]
 
