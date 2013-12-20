@@ -12,8 +12,8 @@ local normalFont = STANDARD_TEXT_FONT
 
 local backdropTexture = [=[Interface\ChatFrame\ChatFrameBackground]=]
 local backdrop = {
-  bgFile = "Interface\\Buttons\\WHITE8x8",
-  edgeFile = "Interface\\Buttons\\WHITE8x8",
+  bgFile = backdropTexture,
+  edgeFile = backdropTexture,
   edgeSize = 1,
   insets = { left = -1, right = -1, top = -1, bottom = -1}
   }
