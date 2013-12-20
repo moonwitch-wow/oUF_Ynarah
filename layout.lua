@@ -56,19 +56,6 @@ end
 local function PostUpdateDebuff(element, unit, button, index)
 end
 
--- Health Background Color Func
-local function updateHealthBG(self, event, unit, bar, min, max)
- element.__owner.HealPrediction:ForceUpdate()
- if (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
-   local color = self.colors.tapped
-   bar.bg:SetVertexColor(color[1] * 0.4, color[2] * 0.4, color[3]* 0.4)
- else
-   local _, class = UnitClass(unit)
-   local color =  UnitIsPlayer(unit) and self.colors.class[class] or self.colors.reaction[UnitReaction(unit, 'player')] or {1,1,1}
-   bar.bg:SetVertexColor(color[1] * 0.4, color[2] * 0.4, color[3]* 0.4)
- end
-end
-
 ------------------------------------------------------------------------
 -- UnitSpecific setups
 ------------------------------------------------------------------------
@@ -210,7 +197,6 @@ local function Shared(self, unit)
   -- Register it with oUF
   self.Health = Health
   self.Health.bg = healthBackground
-  self.PostUpdateHealth = updateHealthBG
 
   ----------------------------------------
   -- Info Strings
