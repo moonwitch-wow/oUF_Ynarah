@@ -221,6 +221,32 @@ local function Shared(self, unit)
   self:Tag(PPPoints, '[yna:colorpp][curpp< ] [yna:druidpower]|r ')
   self.Power.values = PPPoints
 
+  ----------------------------------------
+  -- Portrait
+  ----------------------------------------
+  -- local Portrait = CreateFrame('PlayerModel', nil, self)
+  -- Portrait:SetSize(200, 200)
+  -- Portrait:SetPoint('LEFT', Health, 'LEFT')
+  -- Portrait:SetCamera(0)
+  if( unit == 'player' or unit == 'target' ) then
+    self.Portrait = CreateFrame("PlayerModel", nil, self)
+    self.Portrait:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+    self.Portrait:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 50)
+    tinsert(self.__elements, ns.HidePortrait)
+
+
+    self.PortraitOverlay = CreateFrame("StatusBar", self:GetName().."_PortraitOverlay", self)
+    self.PortraitOverlay:SetFrameLevel(2)
+    self.PortraitOverlay:SetAllPoints(self.Portrait)
+    self.PortraitOverlay:SetStatusBarTexture(statusbarTexture)
+    self.PortraitOverlay:SetStatusBarColor(0.25, 0.25, 0.25, 0.5)
+
+    -- self.Portrait:SetBackdrop(backdrop)
+    -- self.Portrait:SetBackdropColor(0, 0, 0)
+  end
+
+  -- Register it with oUF
+  self.Portrait = Portrait
 
   ----------------------------------------
   -- Castbar
