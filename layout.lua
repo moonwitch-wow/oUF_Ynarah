@@ -27,6 +27,18 @@ local totSize = {200, 15}
 local partySize = {200, 10}
 
 ------------------------------------------------------------------------
+-- Util Funcs
+------------------------------------------------------------------------
+local function SetFontString(parent, fontName, fontHeight, point, anchor, rPoint, xoffset, yoffset, outline)
+  local fs = parent:CreateFontString(nil, 'OVERLAY')
+  fs:SetFont(fontName, fontHeight, outline)
+  fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
+  fs:SetShadowColor(0, 0, 0, .7)
+  fs:SetShadowOffset(1, -1)
+  return fs
+end
+
+------------------------------------------------------------------------
 -- Custom functions
 ------------------------------------------------------------------------
 local function PostUpdateCast(element, unit)
