@@ -176,19 +176,36 @@ local function Shared(self, unit)
   local Health = CreateFrame('StatusBar', nil, Power or self)
   Health:SetPoint('TOPLEFT', Power, 'TOPLEFT', 8, -8)
   Health:SetPoint('TOPRIGHT', Power, 'TOPRIGHT', 8, -8)
-  Health:SetStatusBarTexture(backdropTexture)
-  Health:SetHeight(30)
-  Health:SetStatusBarColor(.6, .6, .6)
+  Health:SetStatusBarTexture(statusbarTexture)
+  if( unit == 'player' or unit == 'target' ) then
+    Health:SetHeight(25)
+  else
+    Health:SetHeight(12)
+  end
+  Health:SetStatusBarColor(.9, .9, .9)
   Health.frequentUpdates = true
+
+  Health.colorTapping = true
+  Health.colorDisconnected = true
+  Health.colorClass = true
+  Health.colorClassPet = true
+  Health.colorReaction = true
+  Health.colorSmooth = true
+  Health.colorHealth = true
 
   -- Add a background
   local healthBackground = Health:CreateTexture(nil, 'BACKGROUND')
   healthBackground:SetPoint('TOPLEFT', Health, -1, 1)
   healthBackground:SetPoint('BOTTOMRIGHT', Health, 1, -1)
-  healthBackground:SetTexture(.1, .1, .1, .9)
+  healthBackground:SetTexture(statusbarTexture)
+  -- healthBackground:SetVertexColor(.1, .1, .1)
 
   -- Make the background darker.
-  healthBackground.multiplier = .5
+  healthBackground.multiplier = .3
+
+  -- Options
+  -- healthBackground.colorHealth = true
+  -- healthBackground.colorSmooth = true
 
   -- Register it with oUF
   self.Health = Health
