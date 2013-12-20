@@ -213,13 +213,27 @@ local function Shared(self, unit)
   self.PostUpdateHealth = updateHealthBG
 
   ----------------------------------------
-  -- Info String
+  -- Info Strings
   ----------------------------------------
-  -- Position and size
-  -- local Info = Health:CreateTexture(nil, 'BACKGROUND')
-  -- Info:SetHeight(30)
-  -- Info:SetTexture(.1, .1, .1, .7)
-  -- Info:SetPoint('TOP', Health, 'TOP', 8, 8)
+  local Name = SetFontString(Health, titleFont, 15, 'TOPRIGHT', Health, 'BOTTOMRIGHT', 0, -2, 'THINOUTLINE')
+  self:Tag(Name, '[name]')
+
+  if( unit == 'player' or unit == 'target' ) then
+    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
+    self:Tag(Level, '[difficulty<][L>smartlevel<|r] [smartclass]')
+  else
+    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
+    self:Tag(Level, '[difficulty<][L>smartlevel<|r]')
+  end
+
+  local PPPoints = Health:CreateFontString(nil, 'OVERLAY')
+  PPPoints:SetFont(titleFont, 15, 'THINOUTLINE')
+  PPPoints:SetPoint('RIGHT', Health, 0, 0)
+  PPPoints:SetShadowColor(0, 0, 0, .7)
+  PPPoints:SetShadowOffset(1, -1)
+  PPPoints:SetTextColor(1, 1, 1)
+  self:Tag(PPPoints, '[yna:colorpp][curpp< ] [yna:druidpower]|r ')
+  self.Power.values = PPPoints
 
 
   ----------------------------------------
