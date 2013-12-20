@@ -23,8 +23,8 @@ local backdropbordercolor = { .6, .6 , .6, .5 }
 local statusbarTexture = [=[Interface\AddOns\oUF_Ynarah\media\statusbar]=]
 
 local playerSize = {250, 50}
-local totSize = {200, 15}
-local partySize = {200, 10}
+local totSize = {125, 25}
+local partySize = {125, 25}
 
 ------------------------------------------------------------------------
 -- Util Funcs
