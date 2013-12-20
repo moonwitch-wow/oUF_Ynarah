@@ -76,6 +76,20 @@ local UnitSpecific = {
   player = function(self)
     -- player unique
     self:SetSize(unpack(playerSize))
+
+    local ClassIcons = {}
+    for index = 1, 5 do
+      local Icon = self:CreateTexture(nil, 'BACKGROUND')
+
+      Icon:SetSize(20, 20)
+      Icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * Icon:GetWidth(), 0)
+
+      ClassIcons[index] = Icon
+    end
+
+    self.ClassIcons = ClassIcons
+
+
   end,
 
   target = function(self)
