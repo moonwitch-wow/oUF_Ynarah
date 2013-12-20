@@ -99,12 +99,12 @@ local UnitSpecific = {
 
   targettarget = function(self)
     -- tot
-    self:SetSize(unpack(playerSize))
+    self:SetSize(unpack(totSize))
   end,
 
   party = function(self)
     -- party frames
-    self:SetSize(unpack(playerSize))
+    self:SetSize(unpack(partySize))
   end,
 
   boss = function(self)
@@ -114,7 +114,7 @@ local UnitSpecific = {
 
   pet = function(self)
     -- pet frames
-    self:SetSize(unpack(playerSize))
+    self:SetSize(unpack(partySize))
   end,
 }
 UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
@@ -235,19 +235,18 @@ oUF:RegisterStyle('Ynarah', Shared)
 oUF:Factory(function(self)
   self:SetActiveStyle('Ynarah')
   self:Spawn('player'):SetPoint('CENTER', -300, 0)
-  self:Spawn('target'):SetPoint('CENTER', 300, 0)
   self:Spawn('pet'):SetPoint('TOPRIGHT', oUF_YnarahPlayer, 'BOTTOMRIGHT', 0, -15)
+  self:Spawn('target'):SetPoint('CENTER', 300, 0)
+  self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -15)
   self:Spawn('focus'):SetPoint('TOPLEFT', oUF_YnarahPlayer, 0, 26)
 
-  self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 0, 26)
-
   self:SpawnHeader(nil, nil, 'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; hide',
-    'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -6,
+    'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -15,
     'oUF-initialConfigFunction', [[
-      self:SetHeight(16)
-      self:SetWidth(126)
+      self:SetHeight(25)
+      self:SetWidth(125)
     ]]
-  ):SetPoint('TOP', Minimap, 'BOTTOM', 0, -10)
+  ):SetPoint('TOPRIGHT', Minimap, 'BOTTOMRIGHT', -5, -50)
 
   for index = 1, 5 do
     local boss = self:Spawn('boss' .. index)
