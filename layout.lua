@@ -141,20 +141,24 @@ local function Shared(self, unit)
   -- Powerbar
   ----------------------------------------
   local Power = CreateFrame("StatusBar", nil, self)
-  Power:SetHeight(25)
+  if( unit == 'player' or unit == 'target' ) then
+    Power:SetHeight(25)
+  else
+    Power:SetHeight(12)
+  end
   Power:SetStatusBarTexture(statusbarTexture)
 
   -- Add a background
   local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
   powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
   powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
-  powerBackground:SetTexture(.1, .1, .1, .9)
-  powerBackground.multiplier = .5
+  powerBackground:SetTexture(statusbarTexture)
+  powerBackground.multiplier = .3
 
   Power.frequentUpdates = true
-  Power.colorTapping = true
-  Power.colorClass = true
-  Power.colorReaction = true
+  Power.colorPower = true
+  Power.colorClassNPC = true
+  Power.colorClassPet = true
 
   Power:SetPoint('TOP')
   Power:SetPoint('LEFT')
