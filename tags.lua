@@ -42,3 +42,10 @@ end
 ------------------------------------------------------------------------
 -- Tags - Class specific
 ------------------------------------------------------------------------
+oUF.Tags.Methods['yna:druidpower'] = function(unit)
+  local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
+  if(UnitPowerType(unit) ~= 0 and min ~= max) then
+    return ('|cff0090ff%d%%|r'):format(min / max * 100)
+  end
+end
+oUF.Tags.Events['yna:druidpower'] = oUF.Tags.Events.missingpp
