@@ -130,6 +130,8 @@ local function Shared(self, unit)
 
   self:RegisterForClicks"AnyUp"
 
+  self.colors.power.MANA = {0, 144/255, 1} -- I still find mana too bright
+
   -- shared setup
   -- self:SetBackdrop(backdrop)
   -- self:SetBackdropColor(unpack(backdropColor))
