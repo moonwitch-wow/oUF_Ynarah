@@ -297,7 +297,7 @@ oUF:Factory(function(self)
     ]]
   ):SetPoint('TOPRIGHT', Minimap, 'BOTTOMRIGHT', -5, -50)
 
-  for index = 1, 5 do
+  for index = 1, MAX_BOSS_FRAMES do
     local boss = self:Spawn('boss' .. index)
 
     if(index == 1) then
