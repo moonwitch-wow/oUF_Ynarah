@@ -29,14 +29,19 @@ local function Status(unit)
     return 'D'
   end
 end
-
 oUF.Tags.Methods['yna:status'] = Status
 
-oUF.Tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
 oUF.Tags.Methods['yna:leader'] = function(unit)
   if(UnitIsGroupLeader(unit)) then
-    return '|cffffff00!|r'
+    return '|cffffff00L|r'
   end
+end
+oUF.Tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
+
+oUF.Tags.Methods['yna:colorpp'] = function(unit)
+  local _, str = UnitPowerType(unit)
+  local coloredmana = _COLORS.power[str]
+  return coloredmana and string.format('|cff%02x%02x%02x', coloredmana[1] * 255, coloredmana[2] * 255, coloredmana[3] * 255)
 end
 
 ------------------------------------------------------------------------
