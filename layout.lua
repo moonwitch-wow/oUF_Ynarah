@@ -287,7 +287,7 @@ oUF:Factory(function(self)
   self:Spawn('pet'):SetPoint('TOPRIGHT', oUF_YnarahPlayer, 'BOTTOMRIGHT', 0, -15)
   self:Spawn('target'):SetPoint('CENTER', 300, 0)
   self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -15)
-  self:Spawn('focus'):SetPoint('TOPLEFT', oUF_YnarahPlayer, 0, 26)
+  self:Spawn('focus'):SetPoint('CENTER', -300, 50)
 
   self:SpawnHeader(nil, nil, 'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; hide',
     'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -15,
