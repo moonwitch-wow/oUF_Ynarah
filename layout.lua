@@ -41,19 +41,77 @@ end
 ------------------------------------------------------------------------
 -- Custom functions
 ------------------------------------------------------------------------
-local function PostUpdateCast(element, unit)
-end
-
-local function UpdateAura(self, elapsed)
-end
-
 local function PostCreateAura(element, button)
-end
-
-local function PostUpdateBuff(element, unit, button, index)
+  -- button.cd.noCooldownCount = true
+  button:SetBackdrop(backdrop)
+  button:SetBackdropColor(0, 0, 0)
+  button.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+  button.icon:SetDrawLayer('ARTWORK')
 end
 
 local function PostUpdateDebuff(element, unit, button, index)
+  local _, _, _, _, type, _, _, owner = UnitAura(unit, index, button.filter)
+  local color = DebuffTypeColor[type or 'none']
+  button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
+end
+
+------------------------------------------------------------------------
+-- Buff Filters and Debuff filters
+------------------------------------------------------------------------
+local FilterPlayerBuffs
+do
+  local spells = {
+    -- Priest
+    [60062] = true, -- Essence of Life
+    [77487] = true, -- Shadow Bollocks
+    [124430] = true, -- Divine Insight
+    [95740] = true, -- Shadow Orbs
+    [104510] = true, -- Windsong Mastery
+    [104509] = true, -- Windsong Crit
+    [104423] = true, -- Windsong Haste
+    [122309] = true, -- Mark of the catacombs
+    -- Druid
+    [5217] = true, -- Tiger's Fury
+    [52610] = true, -- Savage Roar
+    [106951] = true, -- Berserk
+    [127538] = true, -- Savage Roar (glyphed)
+    [124974] = true, -- Nature's Vigil
+    [132158] = true, -- Nature's Swiftness
+    [132402] = true, -- Savage Defense
+
+    -- Shared
+    [32182] = true, -- Heroism
+    [57933] = true, -- Tricks of the Trade
+    [80353] = true, -- Time Warp
+  }
+
+  function FilterPlayerBuffs(...)
+    local _, _, _, _, _, _, _, _, _, _, _, _, _, id = ...
+      return spells[id]
+    end
+end
+
+local FilterTargetDebuffs
+do
+  local show = {
+    [1490] = true, -- Curse of Elements (Magic Vulnerability)
+    [58410] = true, -- Master Poisoner (Magic Vulnerability)
+    [81326] = true, -- Physical Vulnerability (Shared)
+    [113746] = true, -- Weakened Armor (Shared)
+    [770] = true, -- Faerie Fire
+    [58180] = true, -- Infected Wounds
+    [115798] = true, -- Weakened Blows
+  }
+
+  function FilterTargetDebuffs(...)
+    local _, unit, _, _, _, _, _, _, _, _, owner, _, _, id = ...
+
+    if(owner == 'player' and hide[id]) then
+      return false
+    elseif(owner == 'player' or owner == 'vehicle' or UnitIsFriend('player', unit) or show[id] or not owner) then
+      return true
+    end
+  end
 end
 
 ------------------------------------------------------------------------
@@ -64,58 +122,100 @@ local UnitSpecific = {
     -- player unique
     self:SetSize(unpack(playerSize))
 
+    -----------------------------
+    -- ClassIcons
     local ClassIcons = {}
     for index = 1, 5 do
-      local Icon = self:CreateTexture(nil, 'BACKGROUND')
+      local Icon = self.Health:CreateTexture(nil, 'OVERLAY')
 
       Icon:SetSize(20, 20)
-      Icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * Icon:GetWidth(), 0)
+      Icon:SetPoint('LEFT', self.Health, 'CENTER', index * Icon:GetWidth(), 0)
 
       ClassIcons[index] = Icon
     end
-
     self.ClassIcons = ClassIcons
 
+    -----------------------------
+    -- Totems
+    local Totems = {}
+      for index = 1, MAX_TOTEMS do
+        -- Position and size of the totem indicator
+        local Totem = CreateFrame('Button', nil, self)
+        Totem:SetSize(40, 40)
+        Totem:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * Totem:GetWidth(), 0)
 
+        local Icon = Totem:CreateTexture(nil, 'OVERLAY')
+        Icon:SetAllPoints()
+
+        local Cooldown = CreateFrame('Cooldown', nil, Totem)
+        Cooldown:SetAllPoints()
+
+        Totem.Icon = Icon
+        Totem.Cooldown = Cooldown
+
+        Totems[index] = Totem
+      end
+    self.Totems = Totems
+
+    -----------------------------
+    -- Combopoints
+    self.cPoints = SetFontString(self.Health, titleFont, 30, 'CENTER', self.Health, 'CENTER', 0, 0, 'THINOUTLINE')
+    self:Tag(self.cPoints, '[yna:cp]')
+
+    -----------------------------
+    -- Resting
+    local Resting = SetFontString(self.Health, titleFont, 15, 'CENTER', self.Health, 'CENTER', 0, 2)
+    Resting:SetText('[R]')
+    Resting:SetTextColor(1, .6, .13)
+    self.Resting = Resting
+
+    -----------------------------
+    -- Auras
+    self.Buffs.PostCreateIcon = PostCreateAura
+    self.Buffs.CustomFilter = FilterPlayerBuffs
+
+    self.Debuffs.PostCreateIcon = PostCreateAura
+    self.Debuffs.PostUpdateIcon = PostUpdateDebuff
   end,
 
   target = function(self)
-    -- target unique
     self:SetSize(unpack(playerSize))
+    -----------------------------
+    -- Auras
+    self.Debuffs.onlyShowPlayer = true
+    self.Debuffs.PostCreateIcon = PostCreateAura
+    self.Debuffs.PostUpdateIcon = PostUpdateDebuff
+
   end,
 
   targettarget = function(self)
-    -- tot
     self:SetSize(unpack(totSize))
   end,
 
   party = function(self)
-    -- party frames
     self:SetSize(unpack(partySize))
   end,
 
   boss = function(self)
-    -- boss frames
     self:SetSize(unpack(playerSize))
   end,
 
   pet = function(self)
-    -- pet frames
     self:SetSize(unpack(partySize))
   end,
 }
-UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
+-- UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
+UnitSpecific.focus = UnitSpecific.targettarget
+UnitSpecific.focustarget = UnitSpecific.targettarget
 
 ------------------------------------------------------------------------
 -- Shared Setup
 ------------------------------------------------------------------------
-local function Shared(self, unit)
-  unit = unit:match('(boss)%d?$') or unit
+local function Shared(self, unit, isSingle)
+  self:SetScript('OnEnter', UnitFrame_OnEnter)
+  self:SetScript('OnLeave', UnitFrame_OnLeave)
 
-  self:SetScript("OnEnter", UnitFrame_OnEnter)
-  self:SetScript("OnLeave", UnitFrame_OnLeave)
-
-  self:RegisterForClicks"AnyUp"
+  self:RegisterForClicks'AnyUp'
 
   self.colors.power.MANA = {0, 144/255, 1} -- I still find mana too bright
 
@@ -126,8 +226,7 @@ local function Shared(self, unit)
 
   ----------------------------------------
   -- Powerbar
-  ----------------------------------------
-  local Power = CreateFrame("StatusBar", nil, self)
+  local Power = CreateFrame('StatusBar', nil, self)
   if( unit == 'player' or unit == 'target' ) then
     Power:SetHeight(25)
   else
@@ -135,7 +234,6 @@ local function Shared(self, unit)
   end
   Power:SetStatusBarTexture(statusbarTexture)
 
-  -- Add a background
   local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
   powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
   powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
@@ -151,15 +249,11 @@ local function Shared(self, unit)
   Power:SetPoint('LEFT')
   Power:SetPoint('RIGHT')
 
-  -- Register it with oUF
   self.Power = Power
   self.Power.bg = powerBackground
-  -- self.Power.values = PPPoints
 
   ----------------------------------------
   -- Healthbar
-  ----------------------------------------
-  -- Position and size
   local Health = CreateFrame('StatusBar', nil, Power or self)
   Health:SetPoint('TOPLEFT', Power, 'TOPLEFT', 8, -8)
   Health:SetPoint('TOPRIGHT', Power, 'TOPRIGHT', 8, -8)
@@ -180,7 +274,6 @@ local function Shared(self, unit)
   Health.colorSmooth = true
   Health.colorHealth = true
 
-  -- Add a background
   local healthBackground = Health:CreateTexture(nil, 'BACKGROUND')
   healthBackground:SetPoint('TOPLEFT', Health, -1, 1)
   healthBackground:SetPoint('BOTTOMRIGHT', Health, 1, -1)
@@ -190,88 +283,92 @@ local function Shared(self, unit)
   -- Make the background darker.
   healthBackground.multiplier = .3
 
-  -- Options
-  -- healthBackground.colorHealth = true
-  -- healthBackground.colorSmooth = true
-
-  -- Register it with oUF
   self.Health = Health
   self.Health.bg = healthBackground
 
   ----------------------------------------
   -- Info Strings
-  ----------------------------------------
-  local Name = SetFontString(Health, titleFont, 15, 'TOPRIGHT', Health, 'BOTTOMRIGHT', 0, -2, 'THINOUTLINE')
-  self:Tag(Name, '[name]')
-
-  if( unit == 'player' or unit == 'target' ) then
-    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
-    self:Tag(Level, '[difficulty<][L>smartlevel<|r] [smartclass]')
-  else
-    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
-    self:Tag(Level, '[difficulty<][L>smartlevel<|r]')
+  -- Name
+  if (unit ~= 'player') then -- I know my own name!
+    local Name = SetFontString(Health, titleFont, 15, 'TOPRIGHT', Health, 'BOTTOMRIGHT', 0, -2, 'THINOUTLINE')
+    self:Tag(Name, '[yna:shortname]')
   end
 
-  local PPPoints = Health:CreateFontString(nil, 'OVERLAY')
-  PPPoints:SetFont(titleFont, 15, 'THINOUTLINE')
-  PPPoints:SetPoint('RIGHT', Health, 0, 0)
-  PPPoints:SetShadowColor(0, 0, 0, .7)
-  PPPoints:SetShadowOffset(1, -1)
-  PPPoints:SetTextColor(1, 1, 1)
-  self:Tag(PPPoints, '[yna:colorpp][curpp< ] [yna:druidpower]|r ')
+  if( unit == 'target' ) then -- I also know my own class
+    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
+    self:Tag(Level, '[difficulty<][L>smartlevel<|r] [smartclass]')
+  end
+
+  local PPPoints = SetFontString(Health, titleFont, 15, 'RIGHT', Health, 'RIGHT', 0, 0, 'THINOUTLINE')
+  local HPPoints = SetFontString(Health, titleFont, 15, 'LEFT', Health, 'LEFT', 5, 0, 'THINOUTLINE')
+  if unit == 'player' then
+    self:Tag(HPPoints, '[yna:health] [(>perhp<%)]')
+    self:Tag(PPPoints, '[yna:colorpp][perpp<%] [yna:druidpower]|r ')
+  else
+    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][yna:colorhp][yna:health<|r] [(>perhp<%)]')
+    self:Tag(PPPoints, '[yna:colorpp][perpp<%]|r')
+  end
+  self.Health.values = HPPoints
   self.Power.values = PPPoints
 
   ----------------------------------------
-  -- Portrait
-  ----------------------------------------
-  -- local Portrait = CreateFrame('PlayerModel', nil, self)
-  -- Portrait:SetSize(200, 200)
-  -- Portrait:SetPoint('LEFT', Health, 'LEFT')
-  -- Portrait:SetCamera(0)
-  if( unit == 'player' or unit == 'target' ) then
-    self.Portrait = CreateFrame("PlayerModel", nil, self)
-    self.Portrait:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-    self.Portrait:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 50)
-    tinsert(self.__elements, ns.HidePortrait)
-
-
-    self.PortraitOverlay = CreateFrame("StatusBar", self:GetName().."_PortraitOverlay", self)
-    self.PortraitOverlay:SetFrameLevel(2)
-    self.PortraitOverlay:SetAllPoints(self.Portrait)
-    self.PortraitOverlay:SetStatusBarTexture(statusbarTexture)
-    self.PortraitOverlay:SetStatusBarColor(0.25, 0.25, 0.25, 0.5)
-
-    -- self.Portrait:SetBackdrop(backdrop)
-    -- self.Portrait:SetBackdropColor(0, 0, 0)
-  end
-
-  -- Register it with oUF
-  self.Portrait = Portrait
-
-  ----------------------------------------
   -- Castbar
-  ----------------------------------------
 
   ----------------------------------------
   -- Auras
-  ----------------------------------------
+  if (unit == 'player' or unit == 'target') then
+    local Buffs = CreateFrame('Frame', nil, self)
+    Buffs:SetPoint('TOPLEFT', self.Health, 'BOTTOMLEFT', 0, -5)
+    Buffs:SetSize(unpack(playerSize))
+    Buffs.size = 30
+    Buffs['spacing-x'] = 5
+    Buffs.initialAnchor = 'TOPLEFT'
+    Buffs['growth-y'] = 'UP'
+    self.Buffs = Buffs
 
-  ------------------------------------------------------------------------
+    local Debuffs = CreateFrame('Frame', nil, self)
+    Debuffs:SetPoint('BOTTOMLEFT', self.Power, 'TOPLEFT', 8, -12)
+    Debuffs:SetSize(unpack(playerSize))
+    Debuffs.size = 30
+    Debuffs['spacing-x'] = 5
+    Debuffs.initialAnchor = 'TOPLEFT'
+    Debuffs['growth-y'] = 'UP'
+    self.Debuffs = Debuffs -- Register with oUF
+  end
+
+  -- if(unit ~= 'party' and unit ~= 'raid' and unit ~= 'boss') then
+  --   local Debuffs = CreateFrame('Frame', nil, self)
+  --   Debuffs.spacing = 4
+  --   Debuffs.initialAnchor = 'TOPLEFT'
+  --   Debuffs.PostCreateIcon = PostCreateAura
+  --   self.Debuffs = Debuffs
+
+  --   if(unit == 'focus') then
+  --     Debuffs:SetPoint('TOPLEFT', self, 'TOPRIGHT', 4, 0)
+  --     Debuffs.onlyShowPlayer = true
+  --   elseif(unit ~= 'target') then
+  --     Debuffs:SetPoint('TOPRIGHT', self, 'TOPLEFT', -4, 0)
+  --     Debuffs.initialAnchor = 'TOPRIGHT'
+  --     Debuffs['growth-x'] = 'LEFT'
+  --   end
+
+  --   if(unit == 'focus' or unit == 'targettarget') then
+  --     Debuffs.num = 3
+  --     Debuffs.size = 19
+  --     Debuffs:SetSize(230, 19)
+
+  --     Health:SetAllPoints()
+  --     self:SetSize(161, 19)
+  --   end
+  -- end
+
+  ----------------------------------------
   -- Enable Plugins
-  ------------------------------------------------------------------------
-  self.SpellRange = true
   self.Range = {
     insideAlpha = 1,
     outsideAlpha = 0.8,
   }
   self.MoveableFrames = true
-  -- self.FadeCasting = true  -- Fade if the unit is casting or not
-  -- self.FadeCombat = true  -- Fade if the player is in combat or not
-  -- self.FadeTarget = true  -- Fade if unit has a target or not
-  -- self.FadeHover = true  -- Fade if the unit is hovered by the mouse or not (only applies to frames)
-  -- self.FadeSmooth = 0.5
-  -- self.FadeMinAlpha = 0.3
-  -- self.FadeMaxAlpha = 1
 
   -- leave this in!!
   if(UnitSpecific[unit]) then
@@ -279,15 +376,14 @@ local function Shared(self, unit)
   end
 end
 
-
 oUF:RegisterStyle('Ynarah', Shared)
 oUF:Factory(function(self)
   self:SetActiveStyle('Ynarah')
-  self:Spawn('player'):SetPoint('CENTER', -300, 0)
+  self:Spawn('player'):SetPoint('CENTER', -300, -75)
   self:Spawn('pet'):SetPoint('TOPRIGHT', oUF_YnarahPlayer, 'BOTTOMRIGHT', 0, -15)
-  self:Spawn('target'):SetPoint('CENTER', 300, 0)
+  self:Spawn('target'):SetPoint('CENTER', 300, -75)
   self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -15)
-  self:Spawn('focus'):SetPoint('CENTER', -300, 50)
+  self:Spawn('focus'):SetPoint('CENTER', -300, -25)
 
   self:SpawnHeader(nil, nil, 'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; hide',
     'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -15,
