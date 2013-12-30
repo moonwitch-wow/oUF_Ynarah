@@ -2,9 +2,13 @@
 ## Title: oUF_Ynarah
 ## Author: Moonwitch
 ## RequiredDeps: oUF
-## OptDepts: oUF_Fader
+
+Elements\AFK.lua
+#Elements\ResInfo.lua
+Elements\ThreatHighlight.lua
+
+functions.lua
 
 ynarah.xml
 tags.lua
 layout.lua
-raid.lua
