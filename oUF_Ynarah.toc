@@ -12,3 +12,5 @@ auras.lua
 ynarah.xml
 tags.lua
 layout.lua
+
+testframes.lua
