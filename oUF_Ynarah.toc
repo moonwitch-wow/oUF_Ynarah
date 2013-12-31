@@ -5,10 +5,10 @@
 
 Elements\AFK.lua
 #Elements\ResInfo.lua
-Elements\ThreatHighlight.lua
 
 functions.lua
 
+auras.lua
 ynarah.xml
 tags.lua
 layout.lua
