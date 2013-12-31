@@ -32,5 +32,3 @@ $RECYCLE.BIN/
 # SublimeText project files
 *.sublime-workspace
 boilerplate.lua
-layout_old.lua
-statusbar2.tga
