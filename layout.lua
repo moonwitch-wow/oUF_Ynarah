@@ -229,8 +229,9 @@ local function Shared(self, unit, isSingle)
     Buffs:SetSize(unpack(playerSize))
     Buffs.size = 30
     Buffs['spacing-x'] = 5
+    Buffs['spacing-y'] = 4
     Buffs.initialAnchor = 'TOPLEFT'
-    Buffs['growth-y'] = 'UP'
+    Buffs['growth-y'] = 'DOWN'
     self.Buffs = Buffs
 
     local Debuffs = CreateFrame('Frame', nil, self)
