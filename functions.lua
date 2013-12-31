@@ -11,7 +11,7 @@ function ns.SetFontString(parent, fontName, fontHeight, point, anchor, rPoint, x
   local fs = parent:CreateFontString(nil, 'OVERLAY')
   fs:SetFont(fontName, fontHeight, outline)
   fs:SetPoint(point, anchor, rPoint, xoffset, yoffset)
-  fs:SetShadowColor(0, 0, 0, .5)
+  fs:SetShadowColor(0, 0, 0, .9)
   fs:SetShadowOffset(1, -1)
   return fs
 end
