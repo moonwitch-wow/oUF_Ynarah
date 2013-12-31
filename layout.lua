@@ -311,7 +311,7 @@ local function Shared(self, unit, isSingle)
   -- Enable Plugins
   self.Range = {
     insideAlpha = 1,
-    outsideAlpha = 0.8,
+    outsideAlpha = 0.5,
   }
   self.MoveableFrames = true
 
