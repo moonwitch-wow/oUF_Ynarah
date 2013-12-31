@@ -380,14 +380,18 @@ local function Shared(self, unit, isSingle)
   end
 end
 
+------------------------------------------------------------------------
+-- oUF Factory
+------------------------------------------------------------------------
 oUF:RegisterStyle('Ynarah', Shared)
 oUF:Factory(function(self)
   self:SetActiveStyle('Ynarah')
   self:Spawn('player'):SetPoint('CENTER', -300, -75)
   self:Spawn('pet'):SetPoint('TOPRIGHT', oUF_YnarahPlayer, 'BOTTOMRIGHT', 0, -15)
   self:Spawn('target'):SetPoint('CENTER', 300, -75)
-  self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -15)
-  self:Spawn('focus'):SetPoint('CENTER', -300, -25)
+  self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -25)
+  self:Spawn('focus'):SetPoint('CENTER', -325, -10)
+  self:Spawn('focustarget'):SetPoint('LEFT', oUF_YnarahFocus, 'RIGHT', 15, 0)
 
   self:SpawnHeader(nil, nil, 'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; hide',
     'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -15,
