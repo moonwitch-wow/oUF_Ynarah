@@ -3,11 +3,11 @@
 	[
 		{
 			"follow_symlinks": true,
-			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF"
+			"path": "."
 		},
 		{
 			"follow_symlinks": true,
-			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF_Ynarah"
+			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF_Phanx"
 		}
 	]
 }
