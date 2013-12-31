@@ -243,32 +243,6 @@ local function Shared(self, unit, isSingle)
     self.Debuffs = Debuffs -- Register with oUF
   end
 
-  -- if(unit ~= 'party' and unit ~= 'raid' and unit ~= 'boss') then
-  --   local Debuffs = CreateFrame('Frame', nil, self)
-  --   Debuffs.spacing = 4
-  --   Debuffs.initialAnchor = 'TOPLEFT'
-  --   Debuffs.PostCreateIcon = PostCreateAura
-  --   self.Debuffs = Debuffs
-
-  --   if(unit == 'focus') then
-  --     Debuffs:SetPoint('TOPLEFT', self, 'TOPRIGHT', 4, 0)
-  --     Debuffs.onlyShowPlayer = true
-  --   elseif(unit ~= 'target') then
-  --     Debuffs:SetPoint('TOPRIGHT', self, 'TOPLEFT', -4, 0)
-  --     Debuffs.initialAnchor = 'TOPRIGHT'
-  --     Debuffs['growth-x'] = 'LEFT'
-  --   end
-
-  --   if(unit == 'focus' or unit == 'targettarget') then
-  --     Debuffs.num = 3
-  --     Debuffs.size = 19
-  --     Debuffs:SetSize(230, 19)
-
-  --     Health:SetAllPoints()
-  --     self:SetSize(161, 19)
-  --   end
-  -- end
-
   ----------------------------------------
   -- Enable Plugins
   self.Range = {
