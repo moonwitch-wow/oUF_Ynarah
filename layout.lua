@@ -90,21 +90,38 @@ local UnitSpecific = {
     self.Totems = Totems
 
     -----------------------------
-    -- Combopoints
-    self.cPoints = SetFontString(self.Health, titleFont, 30, 'CENTER', self.Health, 'CENTER', 0, 0, 'THINOUTLINE')
-    self:Tag(self.cPoints, '[yna:cp]')
+    -- SpecPower/ComboPoints -- since you know you can only have one :P
+    self.stacker = ns.SetFontString(self.Health, titleFont, 40, 'BOTTOM', self.Health, 'TOPRIGHT', 0, -1)
+    self:Tag(self.stacker, '[raidcolor][cpoints][shadoworbs][soulshards][holypower][chi]|r')
 
     -----------------------------
     -- Resting
-    local Resting = SetFontString(self.Health, titleFont, 15, 'CENTER', self.Health, 'CENTER', 0, 2)
-    Resting:SetText('[R]')
-    Resting:SetTextColor(1, .6, .13)
+    local Resting = ns.SetFontString(self.Health, blockFont, 16, 'BOTTOMRIGHT', self.Health, 'BOTTOMLEFT', 1, -3)
+    Resting:SetText('|cffffcc33z|r')
     self.Resting = Resting
+
+    -----------------------------
+    -- Combat
+    local Combat = ns.SetFontString(self.Health, blockFont, 16, 'RIGHT', self.Health, 'LEFT', 1, 0)
+    Combat:SetText('|cffc41f3bc|r')
+    self.Combat = Combat
+
+    -----------------------------
+    -- PvP
+    local pvp = ns.SetFontString(self.Health, blockFont, 16, 'TOPRIGHT', self.Health, 'TOPLEFT', 1, 3)
+    pvp:SetText('|cffccff00p|r')
+    self.PvP = pvp
+
+    -----------------------------
+    -- Threat
+    local Threat = ns.SetFontString(self.Health, titleFont, 30, 'CENTER', self.Health, 'CENTER', 1, 0)
+    self:Tag(Threat, '[threatcolor][threat<|r]')
+    self.Threat = Threat
 
     -----------------------------
     -- Auras
     self.Buffs.PostCreateIcon = PostCreateAura
-    self.Buffs.CustomFilter = FilterPlayerBuffs
+    self.Buffs.CustomFilter = ns.FilterPlayerBuffs
 
     self.Debuffs.PostCreateIcon = PostCreateAura
     self.Debuffs.PostUpdateIcon = PostUpdateDebuff
