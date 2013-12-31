@@ -112,33 +112,79 @@ local UnitSpecific = {
 
   target = function(self)
     self:SetSize(unpack(playerSize))
+
+    -----------------------------
+    -- HP and PP values
+    local HPPoints = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0, nil)
+    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][unitcolor][yna:health<|r] [(>perhp<%)]')
+    self.Health.values = HPPoints
+
+    local PPPoints = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0, nil)
+    self:Tag(PPPoints, '[powercolor][perpp<%]|r')
+    self.Power.values = PPPoints
+
     -----------------------------
     -- Auras
     self.Debuffs.onlyShowPlayer = true
     self.Debuffs.PostCreateIcon = PostCreateAura
     self.Debuffs.PostUpdateIcon = PostUpdateDebuff
 
+    local Name = ns.SetFontString(self.Health, titleFont, 15, 'TOPRIGHT', self.Health, 'BOTTOMRIGHT', 0, -2, nil)
+    self:Tag(Name, '[yna:shortname]')
+
+    local Level = ns.SetFontString(self.Health, titleFont, 15, 'TOPLEFT', self.Health, 'BOTTOMLEFT', 0, -2, nil)
+    self:Tag(Level, '[difficulty<][L>smartlevel<|r] [smartclass]')
   end,
 
   targettarget = function(self)
-    self:SetSize(unpack(totSize))
+    self:SetSize(unpack(partySize))
+
+    local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
+    self:Tag(Name, '[yna:shortname]')
+
+    -----------------------------
+    -- HP and PP values
+    local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][perhp<%]')
+    self.Health.values = HPPoints
   end,
 
   party = function(self)
-    self:SetSize(unpack(partySize))
+    -- self:SetSize(unpack(partySize))
+
+    -- local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
+    -- self:Tag(Name, '[name]')
+    local name = self.Health:CreateFontString(nil, "OVERLAY")
+        name:SetPoint('LEFT', self.Health, 'LEFT', 1, 0)
+        name:SetFontObject(GameFontNormalSmall)
+        name:SetTextColor(1, 1, 1)
+
+        self.Name = name
+
+    -- -----------------------------
+    -- -- HP and PP values
+    -- local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    -- self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][perhp<%]')
+    -- self.Health.values = HPPoints
+
+    -- -----------------------------
+    -- -- Debuffies
+    -- local debuffies = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    -- self:Tag(debuffies,'[disease][magic][curse][poison]')
+
   end,
 
   boss = function(self)
     self:SetSize(unpack(playerSize))
-  end,
 
-  pet = function(self)
-    self:SetSize(unpack(partySize))
+    local Name = ns.SetFontString(self.Health, titleFont, 15, 'TOPRIGHT', self.Health, 'BOTTOMRIGHT', 0, -2, nil)
+    self:Tag(Name, '[yna:shortname]')
   end,
 }
 -- UnitSpecific.raid = UnitSpecific.party  -- raid is equal to party
 UnitSpecific.focus = UnitSpecific.targettarget
 UnitSpecific.focustarget = UnitSpecific.targettarget
+UnitSpecific.pet = UnitSpecific.targettarget
 
 ------------------------------------------------------------------------
 -- Shared Setup
