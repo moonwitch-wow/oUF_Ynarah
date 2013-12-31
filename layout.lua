@@ -166,10 +166,10 @@ local UnitSpecific = {
     self.Health.values = HPPoints
   end,
 
-  party = function(self,...)
+  party = function(self, ...)
     self:SetSize(unpack(partySize))
 
-    local name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0)
+    local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
     self:Tag(Name, '[yna:shortname]')
 
     -- -----------------------------
