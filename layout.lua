@@ -7,10 +7,12 @@ local oUF = ns.oUF or oUF
 ------------------------------------------------------------------------
 -- Config
 ------------------------------------------------------------------------
-local titleFont = [=[Interface\AddOns\oUF_Ynarah\media\big_noodle_titling.ttf]=]
+local titleFont = [[Interface\AddOns\oUF_Ynarah\media\big_noodle_titling.ttf]]
 local normalFont = STANDARD_TEXT_FONT
+local blockFont = [[Interface\AddOns\oUF_Ynarah\media\squares.ttf]]
+local dotFont = [[Interface\AddOns\oUF_Ynarah\media\PIZZADUDEBULLETS.ttf]]
 
-local backdropTexture = [=[Interface\ChatFrame\ChatFrameBackground]=]
+local backdropTexture = [[Interface\ChatFrame\ChatFrameBackground]]
 local backdrop = {
   bgFile = backdropTexture,
   edgeFile = backdropTexture,
