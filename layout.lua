@@ -170,16 +170,16 @@ local UnitSpecific = {
     local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
     self:Tag(Name, '[yna:shortname]')
 
-    -- -----------------------------
-    -- -- HP and PP values
-    -- local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
-    -- self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][perhp<%]')
-    -- self.Health.values = HPPoints
+    -----------------------------
+    -- HP and PP values
+    local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    self:Tag(HPPoints, '[perhp<%]')
+    self.Health.values = HPPoints
 
-    -- -----------------------------
-    -- -- Debuffies
-    -- local debuffies = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
-    -- self:Tag(debuffies,'[disease][magic][curse][poison]')
+    -----------------------------
+    -- Debuffies
+    local debuffies = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    self:Tag(debuffies,'[disease][magic][curse][poison]')
 
   end,
 
@@ -199,7 +199,9 @@ UnitSpecific.pet = UnitSpecific.targettarget
 -- Shared Setup
 ------------------------------------------------------------------------
 local function Shared(self, unit, isSingle)
-  unit = strmatch("^(%D+)")
+  -- turn "boss2" into "boss" for example
+  unit = gsub(unit, "%d", "")
+
   self:SetScript('OnEnter', UnitFrame_OnEnter)
   self:SetScript('OnLeave', UnitFrame_OnLeave)
 
@@ -328,9 +330,8 @@ oUF:Factory(function(self)
   self:Spawn('focustarget'):SetPoint('LEFT', oUF_YnarahFocus, 'RIGHT', 15, 0)
 
   self:SpawnHeader('oUF_YnarahParty', nil,
-    'raid,party,solo',
+    'party,raid,solo',
     'showParty', true,
-    'showRaid', true,
     'showPlayer', true,
     'showSolo', true,
     'yOffset', -15,
