@@ -166,17 +166,11 @@ local UnitSpecific = {
     self.Health.values = HPPoints
   end,
 
-  party = function(self)
-    -- self:SetSize(unpack(partySize))
+  party = function(self,...)
+    self:SetSize(unpack(partySize))
 
-    -- local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
-    -- self:Tag(Name, '[name]')
-    local name = self.Health:CreateFontString(nil, "OVERLAY")
-        name:SetPoint('LEFT', self.Health, 'LEFT', 1, 0)
-        name:SetFontObject(GameFontNormalSmall)
-        name:SetTextColor(1, 1, 1)
-
-        self.Name = name
+    local name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0)
+    self:Tag(Name, '[yna:shortname]')
 
     -- -----------------------------
     -- -- HP and PP values
@@ -194,7 +188,7 @@ local UnitSpecific = {
   boss = function(self)
     self:SetSize(unpack(playerSize))
 
-    local Name = ns.SetFontString(self.Health, titleFont, 15, 'TOPRIGHT', self.Health, 'BOTTOMRIGHT', 0, -2, nil)
+    local Name = ns.SetFontString(self.Health, titleFont, 15, 'TOPRIGHT', self.Health, 'BOTTOMRIGHT', 0, -2)
     self:Tag(Name, '[yna:shortname]')
   end,
 }
@@ -334,8 +328,13 @@ oUF:Factory(function(self)
   self:Spawn('focus'):SetPoint('CENTER', -325, -10)
   self:Spawn('focustarget'):SetPoint('LEFT', oUF_YnarahFocus, 'RIGHT', 15, 0)
 
-  self:SpawnHeader(nil, nil, 'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; hide',
-    'showParty', true, 'showRaid', true, 'showPlayer', true, 'yOffset', -15,
+  self:SpawnHeader('oUF_YnarahParty', nil,
+    'raid,party,solo',
+    'showParty', true,
+    'showRaid', true,
+    'showPlayer', true,
+    'showSolo', true,
+    'yOffset', -15,
     'oUF-initialConfigFunction', [[
       self:SetHeight(25)
       self:SetWidth(125)
@@ -343,10 +342,10 @@ oUF:Factory(function(self)
   ):SetPoint('TOPRIGHT', Minimap, 'BOTTOMRIGHT', -5, -50)
 
   for index = 1, MAX_BOSS_FRAMES do
-    local boss = self:Spawn('boss' .. index)
+    local boss = self:Spawn('Boss' .. index)
 
     if(index == 1) then
-      boss:SetPoint('TOP', oUF_YnarahRaid or Minimap, 'BOTTOM', 0, -20)
+      boss:SetPoint('TOPRIGHT', oUF_YnarahRaid or BOTTOMRIGHT, 'BOTTOM', -5, -50)
     else
       boss:SetPoint('TOP', _G['oUF_YnarahBoss' .. index - 1], 'BOTTOM', 0, -6)
     end
