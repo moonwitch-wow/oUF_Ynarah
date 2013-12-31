@@ -215,44 +215,18 @@ local function Shared(self, unit, isSingle)
   -- self:SetBackdropBorderColor(unpack(backdropbordercolor))
 
   ----------------------------------------
-  -- Powerbar
-  local Power = CreateFrame('StatusBar', nil, self)
-  if( unit == 'player' or unit == 'target' ) then
-    Power:SetHeight(25)
-  else
-    Power:SetHeight(12)
-  end
-  Power:SetStatusBarTexture(statusbarTexture)
-
-  local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
-  powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
-  powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
-  powerBackground:SetTexture(statusbarTexture)
-  powerBackground.multiplier = .3
-
-  Power.frequentUpdates = true
-  Power.colorPower = true
-  Power.colorClassNPC = true
-  Power.colorClassPet = true
-
-  Power:SetPoint('TOP')
-  Power:SetPoint('LEFT')
-  Power:SetPoint('RIGHT')
-
-  self.Power = Power
-  self.Power.bg = powerBackground
-
-  ----------------------------------------
   -- Healthbar
-  local Health = CreateFrame('StatusBar', nil, Power or self)
-  Health:SetPoint('TOPLEFT', Power, 'TOPLEFT', 8, -8)
-  Health:SetPoint('TOPRIGHT', Power, 'TOPRIGHT', 8, -8)
+  local Health = CreateFrame('StatusBar', nil, self)
   Health:SetStatusBarTexture(statusbarTexture)
   if( unit == 'player' or unit == 'target' ) then
     Health:SetHeight(25)
   else
     Health:SetHeight(12)
   end
+  Health:SetPoint('TOP')
+  Health:SetPoint('LEFT')
+  Health:SetPoint('RIGHT')
+
   Health:SetStatusBarColor(.9, .9, .9)
   Health.frequentUpdates = true
 
@@ -275,6 +249,33 @@ local function Shared(self, unit, isSingle)
 
   self.Health = Health
   self.Health.bg = healthBackground
+
+  ----------------------------------------
+  -- Powerbar
+  local Power = CreateFrame('StatusBar', nil, self)
+  Power:SetFrameLevel(Health:GetFrameLevel()-1)
+  Power:SetPoint('TOPLEFT', Health, 'TOPLEFT', -8, 8)
+  Power:SetPoint('TOPRIGHT', Health, 'TOPRIGHT', -8, 8)
+  if( unit == 'player' or unit == 'target' ) then
+    Power:SetHeight(25)
+  else
+    Power:SetHeight(12)
+  end
+  Power:SetStatusBarTexture(statusbarTexture)
+
+  local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
+  powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
+  powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
+  powerBackground:SetTexture(statusbarTexture)
+  powerBackground.multiplier = .3
+
+  Power.frequentUpdates = true
+  Power.colorPower = true
+  Power.colorClassNPC = true
+  Power.colorClassPet = true
+
+  self.Power = Power
+  self.Power.bg = powerBackground
 
   ----------------------------------------
   -- Castbar
@@ -330,7 +331,7 @@ oUF:Factory(function(self)
   self:Spawn('focustarget'):SetPoint('LEFT', oUF_YnarahFocus, 'RIGHT', 15, 0)
 
   self:SpawnHeader('oUF_YnarahParty', nil,
-    'party,raid,solo',
+    'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; show',
     'showParty', true,
     'showPlayer', true,
     'showSolo', true,
