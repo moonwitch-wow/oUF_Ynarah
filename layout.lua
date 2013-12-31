@@ -219,31 +219,6 @@ local function Shared(self, unit, isSingle)
   self.Health.bg = healthBackground
 
   ----------------------------------------
-  -- Info Strings
-  -- Name
-  if (unit ~= 'player') then -- I know my own name!
-    local Name = SetFontString(Health, titleFont, 15, 'TOPRIGHT', Health, 'BOTTOMRIGHT', 0, -2, 'THINOUTLINE')
-    self:Tag(Name, '[yna:shortname]')
-  end
-
-  if( unit == 'target' ) then -- I also know my own class
-    local Level = SetFontString(Health, titleFont, 15, 'TOPLEFT', Health, 'BOTTOMLEFT', 0, -2, 'THINOUTLINE')
-    self:Tag(Level, '[difficulty<][L>smartlevel<|r] [smartclass]')
-  end
-
-  local PPPoints = SetFontString(Health, titleFont, 15, 'RIGHT', Health, 'RIGHT', 0, 0, 'THINOUTLINE')
-  local HPPoints = SetFontString(Health, titleFont, 15, 'LEFT', Health, 'LEFT', 5, 0, 'THINOUTLINE')
-  if unit == 'player' then
-    self:Tag(HPPoints, '[yna:health] [(>perhp<%)]')
-    self:Tag(PPPoints, '[yna:colorpp][perpp<%] [yna:druidpower]|r ')
-  else
-    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][yna:colorhp][yna:health<|r] [(>perhp<%)]')
-    self:Tag(PPPoints, '[yna:colorpp][perpp<%]|r')
-  end
-  self.Health.values = HPPoints
-  self.Power.values = PPPoints
-
-  ----------------------------------------
   -- Castbar
 
   ----------------------------------------
