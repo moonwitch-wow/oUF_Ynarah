@@ -22,7 +22,9 @@ local backdrop = {
 local backdropColor = { .1, .1, .1, .5 }
 local backdropbordercolor = { .6, .6 , .6, .5 }
 
-local statusbarTexture = [=[Interface\AddOns\oUF_Ynarah\media\statusbar]=]
+-- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\statusbar]]
+-- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\Neal.blp]]
+local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\Striped.tga]]
 
 local playerSize = {250, 50}
 local totSize = {125, 26}
