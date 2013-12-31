@@ -58,17 +58,14 @@ local UnitSpecific = {
     self:SetSize(unpack(playerSize))
 
     -----------------------------
-    -- ClassIcons
-    local ClassIcons = {}
-    for index = 1, 5 do
-      local Icon = self.Health:CreateTexture(nil, 'OVERLAY')
+    -- HP and PP values
+    local HPPoints = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0)
+    self:Tag(HPPoints, '[yna:health] [(>perhp<%)]')
+    self.Health.values = HPPoints
 
-      Icon:SetSize(20, 20)
-      Icon:SetPoint('LEFT', self.Health, 'CENTER', index * Icon:GetWidth(), 0)
-
-      ClassIcons[index] = Icon
-    end
-    self.ClassIcons = ClassIcons
+    local PPPoints = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0)
+    self:Tag(PPPoints, '[powercolor][perpp<%] [yna:druidpower]|r ')
+    self.Power.values = PPPoints
 
     -----------------------------
     -- Totems
