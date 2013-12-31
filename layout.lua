@@ -167,8 +167,6 @@ local UnitSpecific = {
   end,
 
   party = function(self, ...)
-    self:SetSize(unpack(partySize))
-
     local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
     self:Tag(Name, '[yna:shortname]')
 
@@ -201,6 +199,7 @@ UnitSpecific.pet = UnitSpecific.targettarget
 -- Shared Setup
 ------------------------------------------------------------------------
 local function Shared(self, unit, isSingle)
+  unit = strmatch("^(%D+)")
   self:SetScript('OnEnter', UnitFrame_OnEnter)
   self:SetScript('OnLeave', UnitFrame_OnLeave)
 
