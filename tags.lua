@@ -100,16 +100,4 @@ oUF.Tags.Methods['yna:druidpower'] = function(unit)
   end
 end
 oUF.Tags.Events['yna:druidpower'] = oUF.Tags.Events.missingpp
------------------------------
--- ComboPoints
-oUF.Tags.Methods['yna:cp'] = function(unit)
-  local cp = UnitExists("vehicle") and GetComboPoints("vehicle", "target") or GetComboPoints("player", "target")
-  cpcol = {"8AFF30","FFF130","FF6161"}
-  if cp == 1 then            return "|cff"..cpcol[1].."_|r"
-  elseif cp == 2 then        return "|cff"..cpcol[1].."_ _|r"
-  elseif cp == 3 then        return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_|r"
-  elseif cp == 4 then        return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_ _|r"
-  elseif cp == 5 then        return "|cff"..cpcol[1].."_ _|r |cff"..cpcol[2].."_ _|r |cff"..cpcol[3].."_|r"
-  end
-end
-oUF.Tags.Events['yna:cp'] = 'UNIT_COMBO_POINTS'
+
