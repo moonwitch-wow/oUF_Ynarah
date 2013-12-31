@@ -1,58 +1,49 @@
 ------------------------------------------------------------------------
 -- Namespace
 ------------------------------------------------------------------------
+local _, ns = ...
 local tags = oUF.Tags.Methods or oUF.Tags
 local tagevents = oUF.TagEvents or oUF.Tags.Events
 
 ------------------------------------------------------------------------
--- Util Funcs
-------------------------------------------------------------------------
-local function SI(value)
-  if(value >= 1e6) then
-    return ('%.2fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-  elseif(value >= 1e4) then
-    return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-  else
-    return value
-  end
-end
-
-------------------------------------------------------------------------
 -- Tags - Generic
 ------------------------------------------------------------------------
-local function Status(unit)
-  if(not UnitIsConnected(unit)) then
-    return 'O'
-  elseif(UnitIsGhost(unit)) then
-    return 'G'
-  elseif(UnitIsDead(unit)) then
-    return 'D'
-  end
-end
-oUF.Tags.Methods['yna:status'] = Status
-
 -----------------------------
 -- Leader func
-oUF.Tags.Methods['yna:leader'] = function(unit)
+oUF.Tags.Methods['leader'] = function(unit)
   if(UnitIsGroupLeader(unit)) then
     return '|cffffff00L|r'
   end
 end
-oUF.Tags.Events['yna:leader'] = 'PARTY_LEADER_CHANGED'
+oUF.Tags.Events['leader'] = 'PARTY_LEADER_CHANGED'
 
 -----------------------------
 -- colorize power
-oUF.Tags.Methods['yna:colorpp'] = function(unit)
-  local _, str = UnitPowerType(unit)
-  local coloredmana = _COLORS.power[str]
-  return coloredmana and string.format('|cff%02x%02x%02x', coloredmana[1] * 255, coloredmana[2] * 255, coloredmana[3] * 255)
+oUF.Tags.Events['powercolor'] = 'UNIT_DISPLAYPOWER'
+oUF.Tags.Methods['powercolor'] = function(unit)
+  local _, type = UnitPowerType(unit)
+  local color = oUF.colors.power[type] or oUF.colors.power.FUEL
+  return format('|cff%02x%02x%02x', color[1] * 255, color[2] * 255, color[3] * 255)
 end
 
 -----------------------------
 -- colorize HP
-oUF.Tags.Methods['yna:colorhp'] = function(unit)
-  local colored = oUF.colors.health
-  return colored and string.format('|cff%02x%02x%02x', colored[1] * 255, colored[2] * 255, colored[3] * 255)
+oUF.Tags.Events['unitcolor'] = 'UNIT_HEALTH UNIT_CLASSIFICATION UNIT_REACTION'
+oUF.Tags.Methods['unitcolor'] = function(unit)
+  local color
+  if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+    color = oUF.colors.disconnected
+  elseif UnitIsPlayer(unit) then
+    local _, class = UnitClass(unit)
+    color = oUF.colors.class[class]
+  elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
+    color = oUF.colors.tapped
+  elseif UnitIsEnemy(unit, 'player') then
+    color = oUF.colors.reaction[1]
+  else
+    color = oUF.colors.reaction[UnitReaction(unit, 'player') or 5]
+  end
+  return color and ('|cff%02x%02x%02x'):format(color[1] * 255, color[2] * 255, color[3] * 255) or '|cffffffff'
 end
 
 -----------------------------
@@ -62,13 +53,13 @@ oUF.Tags.Methods['yna:health'] = function(unit)
 
   local min, max = UnitHealth(unit), UnitHealthMax(unit)
   if(min ~= 0 and min ~= max) then
-    return '-' .. SI(max - min)
+    return '-' .. ns.SI(max - min)
   else
-    return SI(max)
+    return ns.SI(max)
   end
 end
 oUF.Tags.Events['yna:health'] = oUF.Tags.Events.missinghp
--- oUF.ColorGradient
+
 -----------------------------
 -- Shortname
 oUF.Tags.Methods['yna:shortname'] = function(unit)
@@ -77,9 +68,31 @@ oUF.Tags.Methods['yna:shortname'] = function(unit)
 end
 oUF.Tags.Events['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
 
+-----------------------------
+-- Debuff tags - thanks to Tekkub
+local function HasDebuffType(unit, t)
+  for i=1,40 do
+    local name, _, _, _, debuffType = UnitDebuff(unit, i)
+    if not name then return
+    elseif debuffType == t then return true end
+  end
+end
+
+oUF.Tags.Methods["disease"] = function(u) return HasDebuffType(u, "Disease") and "|cff996600Di|r" end
+oUF.Tags.Methods["magic"]   = function(u) return HasDebuffType(u, "Magic")   and "|cff3399FFMa|r" end
+oUF.Tags.Methods["curse"]   = function(u) return HasDebuffType(u, "Curse")   and "|cff9900FFCu|r" end
+oUF.Tags.Methods["poison"]  = function(u) return HasDebuffType(u, "Poison")  and "|cff009900Po|r" end
+oUF.Tags.Events["disease"] = "UNIT_AURA"
+oUF.Tags.Events["magic"]   = "UNIT_AURA"
+oUF.Tags.Events["curse"]   = "UNIT_AURA"
+oUF.Tags.Events["poison"]  = "UNIT_AURA"
+
 ------------------------------------------------------------------------
 -- Tags - Class specific
 ------------------------------------------------------------------------
+-----------------------------
+-- Druid Power - show mana when not full
+
 oUF.Tags.Methods['yna:druidpower'] = function(unit)
   local min, max = UnitPower(unit, 0), UnitPowerMax(unit, 0)
   if(UnitPowerType(unit) ~= 0 and min ~= max) then
