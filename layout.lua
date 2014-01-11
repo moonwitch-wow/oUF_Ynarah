@@ -22,11 +22,9 @@ local backdrop = {
 local backdropColor = { .1, .1, .1, .5 }
 local backdropbordercolor = { .6, .6 , .6, .5 }
 
--- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\Neal.blp]]
-local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex.tga]]
-local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex6.tga]]
-local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex9.tga]]
--- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\SmoothV2.tga]]
+local statusbarTexture = [[Interface\TARGETINGFRAME\UI-StatusBar.blp]]
+-- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex6.tga]]
+-- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex9.tga]]
 -- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\statusbar]]
 -- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\Striped.tga]]
 
@@ -157,7 +155,7 @@ local UnitSpecific = {
   end,
 
   targettarget = function(self)
-    self:SetSize(unpack(partySize))
+    self:SetSize(unpack(totSize))
 
     local Name = ns.SetFontString(self.Health, titleFont, 13, 'LEFT', self.Health, 'LEFT', 1, 0, nil)
     self:Tag(Name, '[yna:shortname]')
