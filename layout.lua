@@ -108,22 +108,31 @@ local UnitSpecific = {
     self.Combat = Combat
 
     -----------------------------
-    -- PvP
-    local pvp = ns.SetFontString(self.Health, blockFont, 16, 'TOPRIGHT', self.Health, 'TOPLEFT', 1, 3)
-    pvp:SetText('|cffccff00p|r')
-    self.PvP = pvp
-
-    -----------------------------
     -- Threat
-    local Threat = ns.SetFontString(self.Health, titleFont, 30, 'CENTER', self.Health, 'CENTER', 1, 0)
+    local Threat = ns.SetFontString(self.Health, titleFont, 50, 'CENTER', self.Health, 'CENTER', 1, 0)
     self:Tag(Threat, '[threatcolor][threat<|r]')
     self.Threat = Threat
 
     -----------------------------
     -- Auras
+    self.Buffs = CreateFrame('Frame', nil, self)
+    self.Buffs:SetPoint('TOPLEFT', self.Health, 'BOTTOMLEFT', 0, -5)
+    self.Buffs:SetSize(unpack(playerSize))
+    self.Buffs.size = 30
+    self.Buffs['spacing-x'] = 5
+    self.Buffs['spacing-y'] = 4
+    self.Buffs.initialAnchor = 'TOPLEFT'
+    self.Buffs['growth-y'] = 'DOWN'
     self.Buffs.PostCreateIcon = PostCreateAura
     self.Buffs.CustomFilter = ns.FilterPlayerBuffs
 
+    self.Debuffs = CreateFrame('Frame', nil, self)
+    self.Debuffs:SetPoint('BOTTOMLEFT', self.Power, 'TOPLEFT', 8, -12)
+    self.Debuffs:SetSize(unpack(playerSize))
+    self.Debuffs.size = 30
+    self.Debuffs['spacing-x'] = 5
+    self.Debuffs.initialAnchor = 'TOPLEFT'
+    self.Debuffs['growth-y'] = 'UP'
     self.Debuffs.PostCreateIcon = PostCreateAura
     self.Debuffs.PostUpdateIcon = PostUpdateDebuff
   end,
@@ -143,6 +152,13 @@ local UnitSpecific = {
 
     -----------------------------
     -- Auras
+    self.Debuffs = CreateFrame('Frame', nil, self)
+    self.Debuffs:SetPoint('BOTTOMLEFT', self.Power, 'TOPLEFT', 8, -12)
+    self.Debuffs:SetSize(unpack(playerSize))
+    self.Debuffs.size = 30
+    self.Debuffs['spacing-x'] = 5
+    self.Debuffs.initialAnchor = 'TOPLEFT'
+    self.Debuffs['growth-y'] = 'UP'
     self.Debuffs.onlyShowPlayer = true
     self.Debuffs.PostCreateIcon = PostCreateAura
     self.Debuffs.PostUpdateIcon = PostUpdateDebuff
@@ -179,7 +195,7 @@ local UnitSpecific = {
 
     -----------------------------
     -- Debuffies
-    local debuffies = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    local debuffies = ns.SetFontString(self.Health, titleFont, 20, 'LEFT', self.Health, 'LEFT', -1, 0, nil)
     self:Tag(debuffies,'[disease][magic][curse][poison]')
 
   end,
@@ -253,56 +269,37 @@ local function Shared(self, unit, isSingle)
 
   ----------------------------------------
   -- Powerbar
-  local Power = CreateFrame('StatusBar', nil, self)
-  Power:SetFrameLevel(Health:GetFrameLevel()-1)
-  Power:SetPoint('TOPLEFT', Health, 'TOPLEFT', -8, 8)
-  Power:SetPoint('TOPRIGHT', Health, 'TOPRIGHT', -8, 8)
   if( unit == 'player' or unit == 'target' ) then
+    local Power = CreateFrame('StatusBar', nil, self)
+    Power:SetFrameLevel(Health:GetFrameLevel()-1)
+    Power:SetPoint('TOPLEFT', Health, 'TOPLEFT', -8, 8)
+    Power:SetPoint('TOPRIGHT', Health, 'TOPRIGHT', -8, 8)
+
     Power:SetHeight(25)
-  else
-    Power:SetHeight(12)
+    Power:SetStatusBarTexture(statusbarTexture)
+
+    local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
+    powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
+    powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
+    powerBackground:SetTexture(statusbarTexture)
+    powerBackground.multiplier = .3
+
+    Power.frequentUpdates = true
+    Power.colorPower = true
+    Power.colorClassNPC = true
+    Power.colorClassPet = true
+
+    self.Power = Power
+    self.Power.bg = powerBackground
   end
-  Power:SetStatusBarTexture(statusbarTexture)
 
-  local powerBackground = Power:CreateTexture(nil, 'BACKGROUND')
-  powerBackground:SetPoint('TOPLEFT', Power, -1, 1)
-  powerBackground:SetPoint('BOTTOMRIGHT', Power, 1, -1)
-  powerBackground:SetTexture(statusbarTexture)
-  powerBackground.multiplier = .3
-
-  Power.frequentUpdates = true
-  Power.colorPower = true
-  Power.colorClassNPC = true
-  Power.colorClassPet = true
-
-  self.Power = Power
-  self.Power.bg = powerBackground
+  -----------------------------
+  -- PvP
+  local PvP = ns.SetFontString(self.Health, titleFont, 16, 'CENTER', self.Health, 'CENTER', 0, 0)
+  self:Tag(PvP, '[yna:pvp]')
 
   ----------------------------------------
   -- Castbar
-
-  ----------------------------------------
-  -- Auras
-  if (unit == 'player' or unit == 'target') then
-    local Buffs = CreateFrame('Frame', nil, self)
-    Buffs:SetPoint('TOPLEFT', self.Health, 'BOTTOMLEFT', 0, -5)
-    Buffs:SetSize(unpack(playerSize))
-    Buffs.size = 30
-    Buffs['spacing-x'] = 5
-    Buffs['spacing-y'] = 4
-    Buffs.initialAnchor = 'TOPLEFT'
-    Buffs['growth-y'] = 'DOWN'
-    self.Buffs = Buffs
-
-    local Debuffs = CreateFrame('Frame', nil, self)
-    Debuffs:SetPoint('BOTTOMLEFT', self.Power, 'TOPLEFT', 8, -12)
-    Debuffs:SetSize(unpack(playerSize))
-    Debuffs.size = 30
-    Debuffs['spacing-x'] = 5
-    Debuffs.initialAnchor = 'TOPLEFT'
-    Debuffs['growth-y'] = 'UP'
-    self.Debuffs = Debuffs -- Register with oUF
-  end
 
   ----------------------------------------
   -- Enable Plugins
