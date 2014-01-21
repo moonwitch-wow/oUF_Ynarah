@@ -69,6 +69,15 @@ end
 oUF.Tags.Events['yna:shortname'] = 'UNIT_NAME_UPDATE UNIT_REACTION UNIT_FACTION'
 
 -----------------------------
+-- PvP
+oUF.Tags.Methods['yna:pvp'] = function (unit)
+  if(UnitIsPVP(unit)) then
+    return '|cffff0000#|r'
+  end
+end
+oUF.Tags.Events['yna:pvp'] = oUF.Tags.Events.pvp
+
+-----------------------------
 -- Debuff tags - thanks to Tekkub
 local function HasDebuffType(unit, t)
   for i=1,40 do
