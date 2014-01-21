@@ -17,10 +17,7 @@ do
     [77487] = true, -- Shadow Bollocks
     [124430] = true, -- Divine Insight
     [95740] = true, -- Shadow Orbs
-    [104510] = true, -- Windsong Mastery
-    [104509] = true, -- Windsong Crit
-    [104423] = true, -- Windsong Haste
-    [122309] = true, -- Mark of the catacombs
+
     -- Druid
     [5217] = true, -- Tiger's Fury
     [52610] = true, -- Savage Roar
@@ -34,6 +31,11 @@ do
     [32182] = true, -- Heroism
     [57933] = true, -- Tricks of the Trade
     [80353] = true, -- Time Warp
+    [104510] = true, -- Windsong Mastery
+    [104509] = true, -- Windsong Crit
+    [104423] = true, -- Windsong Haste
+    [122309] = true, -- Mark of the catacombs
+    [122687] = true, -- Charm of the Ten Songs
   }
 
   function ns.FilterPlayerBuffs(...)
