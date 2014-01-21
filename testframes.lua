@@ -1,5 +1,5 @@
 local groups = { -- Change these to the global names your layout will make.
-  party = {"oUF_YnarahParty"},
+  party = {"oUF_YnarahParty1", "oUF_YnarahParty2", "oUF_YnarahParty3", "oUF_YnarahParty4"},
   -- arena = { "oUF_YnarahArena1", "oUF_YnarahArena2", "oUF_YnarahArena3", "oUF_YnarahArena4", "oUF_YnarahArena5",  "oUF_YnarahArenaPet1", "oUF_YnarahArena2", "oUF_YnarahArenaPet3", "oUF_YnarahArenaPet4", "oUF_YnarahArenaPet5" },
   boss = { "oUF_YnarahBoss1", "oUF_YnarahBoss2", "oUF_YnarahBoss3", "oUF_YnarahBoss4", "oUF_YnarahBoss5" },
   focus = { "oUF_YnarahFocus", "oUF_YnarahFocusTarget"},
