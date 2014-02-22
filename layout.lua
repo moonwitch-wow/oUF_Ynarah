@@ -214,6 +214,7 @@ local UnitSpecific = {
 UnitSpecific.focus = UnitSpecific.targettarget
 UnitSpecific.focustarget = UnitSpecific.targettarget
 UnitSpecific.pet = UnitSpecific.targettarget
+UnitSpecific.boss = UnitSpecific.targettarget
 
 ------------------------------------------------------------------------
 -- Shared Setup
@@ -341,20 +342,20 @@ oUF:Factory(function(self)
       self:SetHeight(25)
       self:SetWidth(125)
     ]]
-  ):SetPoint('TOPRIGHT', Minimap, 'BOTTOMRIGHT', -5, -50)
+  ):SetPoint('BOTTOMRIGHT', UIParent, 'BOTTOMRIGHT', -15, 350)
 
   for index = 1, MAX_BOSS_FRAMES do
     local boss = self:Spawn('Boss' .. index)
 
     if(index == 1) then
-      boss:SetPoint('TOPRIGHT', oUF_YnarahRaid or BOTTOMRIGHT, 'BOTTOM', -5, -50)
+      boss:SetPoint('TOP', Minimap, 'BOTTOM', 5, -25)
     else
       boss:SetPoint('TOP', _G['oUF_YnarahBoss' .. index - 1], 'BOTTOM', 0, -6)
     end
 
-    local blizzardFrames = _G['Boss' .. index .. 'TargetFrame']
-    blizzardFrames:UnregisterAllEvents()
-    blizzardFrames:Hide()
+    -- local blizzardFrames = _G['Boss' .. index .. 'TargetFrame']
+    -- blizzardFrames:UnregisterAllEvents()
+    -- blizzardFrames:Hide()
   end
 
     -- Remove irrelevant rightclick menu entries
