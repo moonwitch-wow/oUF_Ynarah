@@ -61,13 +61,11 @@ local UnitSpecific = {
 
     -----------------------------
     -- HP and PP values
-    local HPPoints = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0)
-    self:Tag(HPPoints, '[yna:health] [(>perhp<%)]')
-    self.Health.values = HPPoints
+    self.Health.values = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0)
+    self:Tag(self.Health.values, '[yna:health] [(>perhp<%)]')
 
-    local PPPoints = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0)
-    self:Tag(PPPoints, '[powercolor][perpp<%] [yna:druidpower]|r ')
-    self.Power.values = PPPoints
+    self.Power.values = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0)
+    self:Tag(self.Power.values, '[powercolor][perpp<%] [yna:druidpower]|r ')
 
     -----------------------------
     -- Totems
@@ -98,21 +96,18 @@ local UnitSpecific = {
 
     -----------------------------
     -- Resting
-    local Resting = ns.SetFontString(self.Health, blockFont, 16, 'BOTTOMRIGHT', self.Health, 'BOTTOMLEFT', 1, -3)
-    Resting:SetText('|cffffcc33z|r')
-    self.Resting = Resting
+    self.Resting = ns.SetFontString(self.Health, blockFont, 16, 'BOTTOMRIGHT', self.Health, 'BOTTOMLEFT', 1, -3)
+    self.Resting:SetText('|cffffcc33z|r')
 
     -----------------------------
     -- Combat
-    local Combat = ns.SetFontString(self.Health, blockFont, 16, 'RIGHT', self.Health, 'LEFT', 1, 0)
-    Combat:SetText('|cffc41f3bc|r')
-    self.Combat = Combat
+    self.Combat = ns.SetFontString(self.Health, blockFont, 16, 'RIGHT', self.Health, 'LEFT', 1, 0)
+    self.Combat:SetText('|cffc41f3bc|r')
 
     -----------------------------
     -- Threat
-    local Threat = ns.SetFontString(self.Health, titleFont, 50, 'CENTER', self.Health, 'CENTER', 1, 0)
-    self:Tag(Threat, '[threatcolor][threat<|r]')
-    self.Threat = Threat
+    self.Threat = ns.SetFontString(self.Health, titleFont, 50, 'CENTER', self.Health, 'CENTER', 1, 0)
+    self:Tag(self.Threat, '[threatcolor][threat<|r]')
 
     -----------------------------
     -- Auras
@@ -143,13 +138,11 @@ local UnitSpecific = {
 
     -----------------------------
     -- HP and PP values
-    local HPPoints = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0, nil)
-    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][unitcolor][yna:health<|r] [(>perhp<%)]')
-    self.Health.values = HPPoints
+    self.Health.values = ns.SetFontString(self.Health, titleFont, 15, 'LEFT', self.Health, 'LEFT', 5, 0, nil)
+    self:Tag(self.Health.values, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][unitcolor][yna:health<|r] [(>perhp<%)]')
 
-    local PPPoints = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0, nil)
-    self:Tag(PPPoints, '[powercolor][perpp<%]|r')
-    self.Power.values = PPPoints
+    self.Power.values = ns.SetFontString(self.Health, titleFont, 15, 'RIGHT', self.Health, 'RIGHT', 0, 0, nil)
+    self:Tag(self.Power.values, '[powercolor][perpp<%]|r')
 
     -----------------------------
     -- Auras
@@ -190,9 +183,8 @@ local UnitSpecific = {
 
     -----------------------------
     -- HP and PP values
-    local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
-    self:Tag(HPPoints, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][perhp<%]')
-    self.Health.values = HPPoints
+    self.Health.values = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    self:Tag(self.Health.values, '[|cffc41f3b>dead<|r][|cff999999>offline<|r][perhp<%]')
   end,
 
   party = function(self, ...)
@@ -201,9 +193,8 @@ local UnitSpecific = {
 
     -----------------------------
     -- HP and PP values
-    local HPPoints = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
-    self:Tag(HPPoints, '[perhp<%]')
-    self.Health.values = HPPoints
+    self.Health.values = ns.SetFontString(self.Health, titleFont, 13, 'RIGHT', self.Health, 'RIGHT', -1, 0, nil)
+    self:Tag(self.Health.values, '[perhp<%]')
 
     -----------------------------
     -- Debuffies
