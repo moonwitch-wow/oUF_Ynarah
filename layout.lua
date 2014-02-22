@@ -49,6 +49,15 @@ local function PostUpdateDebuff(element, unit, button, index)
   button:SetBackdropColor(color.r * 3/5, color.g * 3/5, color.b * 3/5)
 end
 
+local OnEnter = function(self)
+    UnitFrame_OnEnter(self)
+    self.Highlight:Show()
+end
+
+local OnLeave = function(self)
+    UnitFrame_OnLeave(self)
+    self.Highlight:Hide()
+end
 
 
 ------------------------------------------------------------------------
@@ -273,14 +282,13 @@ local function Shared(self, unit, isSingle)
   -- turn "boss2" into "boss" for example
   unit = gsub(unit, "%d", "")
 
-  self:SetScript('OnEnter', UnitFrame_OnEnter)
-  self:SetScript('OnLeave', UnitFrame_OnLeave)
+  self:SetScript('OnEnter', OnEnter)
+  self:SetScript('OnLeave', OnLeave)
 
   self:RegisterForClicks'AnyUp'
 
   self.colors.power.MANA = {0, 144/255, 1} -- I still find mana too bright
 
-  -- shared setup
   -- self:SetBackdrop(backdrop)
   -- self:SetBackdropColor(unpack(backdropColor))
   -- self:SetBackdropBorderColor(unpack(backdropbordercolor))
@@ -354,6 +362,15 @@ local function Shared(self, unit, isSingle)
 
   ----------------------------------------
   -- Castbar
+
+  -----------------------------
+  -- Highlight
+  self.Highlight = self.Health:CreateTexture(nil, 'OVERLAY')
+  self.Highlight:SetAllPoints(self.Health)
+  self.Highlight:SetTexture([=[Interface\Buttons\WHITE8x8]=])
+  self.Highlight:SetVertexColor(1,1,1,.2)
+  self.Highlight:SetBlendMode('ADD')
+  self.Highlight:Hide()
 
   ----------------------------------------
   -- Enable Plugins

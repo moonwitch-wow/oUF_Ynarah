@@ -12,4 +12,5 @@ Features:
 - Target + Target of target
 - Party and raid (if enabled)
 - Bossframes
-- Focus frame
+- Focus and focustarget
+- Highlight on mouseover -- this is not very noticeable on classes with very pale classcolor
