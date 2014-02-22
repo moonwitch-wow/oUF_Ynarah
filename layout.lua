@@ -23,6 +23,7 @@ local backdropColor = { .1, .1, .1, .5 }
 local backdropbordercolor = { .6, .6 , .6, .5 }
 
 local statusbarTexture = [[Interface\TARGETINGFRAME\UI-StatusBar.blp]]
+-- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex.tga]]
 -- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex6.tga]]
 -- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\pHishTex9.tga]]
 -- local statusbarTexture = [[Interface\AddOns\oUF_Ynarah\media\statusbar]]
