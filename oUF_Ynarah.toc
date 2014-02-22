@@ -5,6 +5,7 @@
 ## OptionalDeps: oUF_Fader, oUF_MovableFrames
 
 Elements\AFK.lua
+Elements\oUF_GCD.lua
 #Elements\ResInfo.lua
 
 functions.lua
