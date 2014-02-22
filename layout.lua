@@ -131,6 +131,56 @@ local UnitSpecific = {
     self.Debuffs['growth-y'] = 'UP'
     self.Debuffs.PostCreateIcon = PostCreateAura
     self.Debuffs.PostUpdateIcon = PostUpdateDebuff
+
+    -- -----------------------------
+    -- -- Castbar
+    -- -- Position and size
+    -- self.Castbar = CreateFrame("StatusBar", nil, self)
+    -- self.Castbar:SetSize(300, 25)
+    -- self.Castbar:SetPoint('CENTER', UIParent, 'CENTER')
+    -- self.Castbar:SetStatusBarTexture(statusbarTexture)
+    -- self.Castbar:SetStatusBarColor(65/255, 45/255, 140/255)
+
+    -- -- Add a background
+    -- self.Castbar.bg = self.Castbar:CreateTexture(nil, 'BACKGROUND')
+    -- self.Castbar.bg:SetPoint('TOPLEFT', self.Castbar, 'TOPLEFT', -1, 1)
+    -- self.Castbar.bg:SetPoint('BOTTOMRIGHT', self.Castbar, 'BOTTOMRIGHT', 1, -1)
+    -- self.Castbar.bg:SetTexture(statusbarTexture)
+    -- self.Castbar.bg:SetVertexColor(0,0,0, .6)
+
+    -- -- Add a spark
+    -- self.Castbar.Spark = self.Castbar:CreateTexture(nil, "OVERLAY")
+    -- self.Castbar.Spark:SetSize(5,25)
+    -- self.Castbar.Spark:SetBlendMode("ADD")
+
+    -- -- Add a timer
+    -- self.Castbar.Time = self.Castbar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    -- self.Castbar.Time:SetPoint("RIGHT", self.Castbar)
+
+    -- -- Add spell text
+    -- self.Castbar.Text = ns.SetFontString(self.Castbar, normalFont, 15, 'LEFT', self.Castbar, 'LEFT')
+
+    -- -- Add spell icon
+    -- self.Castbar.Icon = self.Castbar:CreateTexture(nil, "OVERLAY")
+    -- self.Castbar.Icon:SetSize(25,25)
+    -- self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT")
+
+    -- -- Add Shield
+    -- self.Castbar.Shield = self.Castbar:CreateTexture(nil, "OVERLAY")
+    -- self.Castbar.Shield:SetSize(20, 20)
+    -- self.Castbar.Shield:SetPoint("CENTER", self.Castbar)
+
+    -- -- Add safezone
+    -- self.Castbar.SafeZone = self.Castbar:CreateTexture(nil, "OVERLAY")
+
+    -- -- Custom timers
+    -- self.Castbar.CustomDelayText = function(self, duration)
+    --   self.Time:SetFormattedText('[|cffff0000-%.1f|r] %.1f/%.1f', self.delay, duration, self.max)
+    -- end
+
+    -- self.Castbar.CustomTimeText = function(self, duration)
+    --   self.Time:SetFormattedText('%.1f / %.1f', self.channeling and duration or (self.max - duration), self.max)
+    -- end
   end,
 
   target = function(self)
