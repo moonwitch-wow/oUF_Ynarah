@@ -325,11 +325,11 @@ end
 oUF:RegisterStyle('Ynarah', Shared)
 oUF:Factory(function(self)
   self:SetActiveStyle('Ynarah')
-  self:Spawn('player'):SetPoint('CENTER', -300, -75)
+  self:Spawn('player'):SetPoint('CENTER', -300, -150)
   self:Spawn('pet'):SetPoint('TOPRIGHT', oUF_YnarahPlayer, 'BOTTOMRIGHT', 0, -15)
-  self:Spawn('target'):SetPoint('CENTER', 300, -75)
+  self:Spawn('target'):SetPoint('CENTER', 300, -150)
   self:Spawn('targettarget'):SetPoint('TOPRIGHT', oUF_YnarahTarget, 'BOTTOMRIGHT', 0, -25)
-  self:Spawn('focus'):SetPoint('CENTER', -325, -10)
+  self:Spawn('focus'):SetPoint('BOTTOMLEFT', oUF_YnarahPlayer, 'TOPLEFT', -10, 25)
   self:Spawn('focustarget'):SetPoint('LEFT', oUF_YnarahFocus, 'RIGHT', 15, 0)
 
   self:SpawnHeader('oUF_YnarahParty', nil,
