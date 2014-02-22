@@ -2,6 +2,7 @@
 ## Title: oUF_Ynarah
 ## Author: Moonwitch
 ## RequiredDeps: oUF
+## OptionalDeps: oUF_Fader, oUF_MovableFrames
 
 Elements\AFK.lua
 #Elements\ResInfo.lua
