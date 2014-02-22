@@ -8,6 +8,10 @@
 		{
 			"follow_symlinks": true,
 			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF_Phanx"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/Applications/World of Warcraft/Interface/AddOns/oUF_Skaarj"
 		}
 	]
 }

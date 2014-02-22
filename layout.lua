@@ -402,7 +402,7 @@ oUF:Factory(function(self)
   self:SpawnHeader('oUF_YnarahParty', nil,
     'custom [group:party] show; [@raid3,exists] show; [@raid26,exists] hide; show',
     'showParty', true,
-    'showPlayer', true,
+    -- 'showPlayer', false,
     'showSolo', true,
     'yOffset', -15,
     'oUF-initialConfigFunction', [[
