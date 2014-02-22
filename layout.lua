@@ -403,9 +403,9 @@ oUF:Factory(function(self)
       boss:SetPoint('TOP', _G['oUF_YnarahBoss' .. index - 1], 'BOTTOM', 0, -6)
     end
 
-    -- local blizzardFrames = _G['Boss' .. index .. 'TargetFrame']
-    -- blizzardFrames:UnregisterAllEvents()
-    -- blizzardFrames:Hide()
+    local blizzardFrames = _G['Boss' .. index .. 'TargetFrame']
+    blizzardFrames:UnregisterAllEvents()
+    blizzardFrames:Hide()
   end
 
     -- Remove irrelevant rightclick menu entries
