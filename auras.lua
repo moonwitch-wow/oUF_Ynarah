@@ -39,7 +39,7 @@ do
   }
 
   function ns.FilterPlayerBuffs(...)
-    local _, _, _, _, _, _, _, _, _, _, _, _, _, id = ...
+    local _, _, _, _, _, _, _, _, _, _, owner, _, _, id = ...
       return spells[id]
     end
 end
@@ -67,3 +67,19 @@ do
   end
 end
 
+local FilterTargetBuffs
+do
+  local spells = {
+    -- priest
+    [139] = true, -- Renew
+    [17] = true, -- PWS
+    [109964] = true, -- Spirit Shell
+    [77613] = true, -- Grace
+    [41635] = true, -- PoM
+  }
+
+  function ns.FilterTargetBuffs(...)
+    local _, _, _, _, _, _, _, _, _, _, owner, _, _, id = ...
+      return spells[id]
+    end
+end

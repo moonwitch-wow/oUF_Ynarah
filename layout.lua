@@ -152,6 +152,17 @@ local UnitSpecific = {
 
     -----------------------------
     -- Auras
+    self.Buffs = CreateFrame("frame", nil, self)
+    self.Buffs:SetPoint('TOPLEFT', self.Health, 'BOTTOMLEFT', -8, -20)
+    self.Buffs:SetSize(unpack(playerSize))
+    self.Buffs.size = 27
+    self.Buffs['spacing-x'] = 5
+    self.Buffs.initialAnchor = 'TOPLEFT'
+    self.Buffs['growth-y'] = 'DOWN'
+    self.Buffs.onlyShowPlayer = true
+    self.Buffs.CustomFilter = ns.FilterTargetBuffs
+    self.Buffs.PostCreateIcon = PostCreateAura
+
     self.Debuffs = CreateFrame('Frame', nil, self)
     self.Debuffs:SetPoint('BOTTOMLEFT', self.Power, 'TOPLEFT', 8, -12)
     self.Debuffs:SetSize(unpack(playerSize))
